@@ -1,0 +1,193 @@
+@import '../mixin';
+
+@font-face {
+  font-family: 'myDIN';
+  src: url-loader('../font/DIN_Alternate_Bold_2.ttf');
+}
+
+$btn-width: 160px;
+$btn-height: 32px;
+
+$primay-color: #0fa0ff;
+
+* {
+  font-family: myDIN;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+
+  &:before,
+  &:after {
+    box-sizing: border-box;
+  }
+}
+.btn-opt{
+    display: inline-block;
+    font-size: 12px; 
+    color: $primay-color;
+    cursor: pointer;
+}
+.app-container {
+    display: flex;
+    flex-flow: column;
+}
+.pages {
+    margin-top: 10px
+}
+// 搜索面板
+@keyframes leave
+{
+    from {height: 108px;}
+    to {height: 0;}
+}
+
+@-webkit-keyframes leave /*Safari and Chrome*/
+{
+    from {height: 108px;}
+    to {height: 0;}
+}
+
+@-moz-keyframes leave /*firefox*/
+{
+    from {height: 108px;}
+    to {height: 0;}
+}
+
+@-o-keyframes leave /*Opera*/
+{
+    from {height: 108px;}
+    to {height: 0;}
+}
+
+@keyframes enter
+{
+    from {height: 0;}
+    to {height: 108px;}
+}
+
+@-webkit-keyframes enter /*Safari and Chrome*/
+{
+    from {height: 0;}
+    to {height: 108px;}
+}
+
+@-moz-keyframes enter /*firefox*/
+{
+    from {height: 0;}
+    to {height: 108px;}
+}
+
+@-o-keyframes enter /*Opera*/
+{
+    from {height: 0;}
+    to {height: 108px;}
+}
+
+.slide-enter-active {
+    animation: enter .6s;
+  }
+  .slide-leave-active {
+    animation: leave .6s;
+  }
+
+.search-container{
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 12px
+}
+.search-panel{
+    height: 108px;
+    background: #ffffff;
+    overflow: hidden;
+
+    .search-item{
+        display: inline-block;
+        width: 45%; 
+        padding: 16px 1% 0; 
+        margin: 0;
+
+        .el-input{
+            width: 75%;
+            margin-left: 12px;
+        }
+
+        span{
+            font-size: 14px;
+        }
+    }
+    .search-item:nth-child(odd){
+        text-align: right;
+        margin-right: 32px;
+    }
+}
+.search-panel-foot{
+    margin-top: 12px;
+    text-align: center;
+    .el-button{
+        width: $btn-width;
+        height: $btn-height;
+    }
+    .arrow{
+        margin-left: 12px;
+        font-size: 12px;
+        color: #ccc;
+        cursor: pointer;
+    }
+}
+
+.primary-color {
+    color: $primay-color;
+    cursor: pointer;
+}
+
+.dialog-process-panel {
+    .dialog-body {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+    .detai-panel-body {
+        display: inline-block;
+        width: 45%;
+        line-height: 40px;
+        span {
+            display: inline-block;
+            min-width: 100px;
+        }
+        span:first-child {
+            color: rgba(0, 0, 0, 0.45)
+        }
+        .update-form-input {
+            display: inline-block;
+            width: 50%;
+        }
+    }
+    .detai-panel-body:nth-child(even) {
+        margin-right: 9%
+    }
+    .process {
+        width: 100%;
+        text-align: center;
+        .process-status {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            background: rgba(51, 144, 255, 1);
+            border-radius: 100px;
+        }
+    }
+    .process-status-desc {
+        margin-top: 10px
+    }
+
+    .dialog-footer {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        margin-top: 24px;
+        border-top: 0;
+        .el-button {
+            width: $btn-width;
+            height: $btn-height;
+            margin-bottom: 24px;
+        }
+    }
+}

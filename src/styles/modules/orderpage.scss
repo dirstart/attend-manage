@@ -1,0 +1,367 @@
+@import '../mixin';
+
+@font-face {
+  font-family: 'myDIN';
+  src: url-loader('../font/DIN_Alternate_Bold_2.ttf');
+}
+
+$btn-width: 160px;
+$btn-height: 32px;
+
+$primay-color: #0fa0ff;
+
+
+* {
+  font-family: myDIN;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+
+  &:before,
+  &:after {
+    box-sizing: border-box;
+  }
+}
+
+.app-container {
+    display: flex;
+    flex-flow: column;
+}
+.pages {
+    margin-top: 10px
+}
+// 搜索面板
+@keyframes leave
+{
+    from {height: 165px;}
+    to {height: 0;}
+}
+
+@-webkit-keyframes leave /*Safari and Chrome*/
+{
+    from {height: 165px;}
+    to {height: 0;}
+}
+
+@-moz-keyframes leave /*firefox*/
+{
+    from {height: 165px;}
+    to {height: 0;}
+}
+
+@-o-keyframes leave /*Opera*/
+{
+    from {height: 165px;}
+    to {height: 0;}
+}
+
+@keyframes enter
+{
+    from {height: 0;}
+    to {height: 165px;}
+}
+
+@-webkit-keyframes enter /*Safari and Chrome*/
+{
+    from {height: 0;}
+    to {height: 165px;}
+}
+
+@-moz-keyframes enter /*firefox*/
+{
+    from {height: 0;}
+    to {height: 165px;}
+}
+
+@-o-keyframes enter /*Opera*/
+{
+    from {height: 0;}
+    to {height: 165px;}
+}
+
+.slide-enter-active {
+    animation: enter .6s;
+  }
+  .slide-leave-active {
+    animation: leave .6s;
+  }
+
+.search-container{
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 12px
+}
+.search-panel{
+    height: 165px;
+    background: #ffffff;
+    overflow: hidden;
+
+    .search-item{
+        display: inline-block;
+        width: 45%; 
+        padding: 16px 1% 0; 
+        margin: 0;
+
+        .el-input, .el-select{
+            width: 75%;
+            margin-left: 12px;
+        }
+
+        span{
+            display: inline-block;
+            width: 90px;
+            text-align: right;
+            font-size: 14px;
+        }
+    }
+    .search-item:nth-child(odd){
+        text-align: right;
+        margin-right: 32px;
+    }
+}
+.search-panel-foot{
+    margin-top: 12px;
+    text-align: center;
+    .el-button{
+        width: $btn-width;
+        height: $btn-height;
+    }
+    .arrow{
+        margin-left: 12px;
+        font-size: 12px;
+        color: #ccc;
+        cursor: pointer;
+    }
+}
+
+.btn-opt{
+    font-size: 12px; 
+    color: $primay-color;
+    cursor: pointer;
+}
+
+.el-select-dropdown__item{
+    padding: 0 20px !important;
+}
+
+.max-width{
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 60px;
+} 
+.ellipsis{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;;
+}
+
+.search-panel-fast {
+    padding: 16px;
+    height: 60px;
+
+    .el-button{
+        padding: 6px 16px;
+        span{
+            font-size: 14px;
+        }
+    }
+
+    .el-input{
+        width: 256px;
+        height: 28px;
+        border-radius: 12px;
+        
+    }
+    
+    .select-right{
+        float: right;
+
+        .el-select{
+            width: 110px;
+        }
+    }
+}
+
+.order-detail-panel{
+    padding: 16px;
+    .header {
+        width: 100%;
+        height: $btn-height;
+        .flightInfo{
+            display: inline-block;
+            height: 100%;
+            width: calc(100% - 170px);
+            width: -moz-calc(100% - 170px);
+            width: -webkit-calc(100% - 170px);
+            width: -o-calc(100% - 170px);
+        }
+        .el-button {
+            display: inline-block;
+            width: $btn-width;
+            height: $btn-height;
+        }
+    }
+
+    .content {
+        width: 100%;
+        span {
+            display: inline-block;
+            width: 70px;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        span:nth-child(odd) {
+            text-align: right;
+            color: rgba(166, 166, 166, 1);
+        }
+        span:nth-child(even) {
+            width: calc(33% - 80px);
+            width: -moz-calc(33% - 80px);
+            width: -webkit-calc(33% - 80px);
+            width: -o-calc(33% - 80px);
+        }
+    }
+
+}
+
+.detail-panel, .new-compensate-panel{
+    .detai-panel-body {
+        width: 100%;
+        padding: 12px 0;
+        span {
+            display: inline-block;
+            width: 80px;
+        }
+        span:nth-child(2) {
+            width: calc(100% - 250px);
+            width: -webkit-calc(100% - 250px);
+            width: -moz-calc(100% - 250px);
+            width: -o-calc(100% - 250px);
+        }
+        span:nth-child(3) {
+            width: 60px
+        }
+        .cabin {
+            width: calc(100% - 200px) !important;
+            width: -webkit-calc(100% - 200px) !important;
+            width: -moz-calc(100% - 200px) !important;
+            width: -o-calc(100% - 200px) !important;
+            
+        }
+        .manager-order{
+            color: $primay-color;
+            cursor: pointer;
+        }
+    }
+    .supply {
+        margin-top: 12px;
+    }
+    .dialog-footer {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        .el-button {
+            width: $btn-width;
+            height: $btn-height;
+            margin-bottom: 24px;
+        }
+    }
+    
+}
+
+.new-compensate-panel {
+    text-align: center;
+    .el-form-item {
+        display: inline-block;
+        width: 45%;
+
+        .el-select, .el-input {
+            width: 90%
+        }
+    }
+}
+
+.order-select-info {
+    border-radius: 4px;
+    width: 100%;
+    height: 40px;
+    padding-left: 12px;
+    padding-right: 12px;
+    background-color: rgba(230, 247, 255, 1);
+    border: 1px solid rgba(186, 231, 255, 1);
+    overflow: hidden;
+    margin-bottom: 4px;
+    span {
+        display: inline-block;
+        vertical-align: middle;
+        line-height: 40px;
+        font-size: 14px;
+        color: rgba(24, 144, 255, 1);
+        cursor: pointer;
+    }
+    span + span {
+        margin-right: 12px;
+    }
+    span:nth-child(2) {
+        color: rgba(0, 0, 0, 0.65);
+        cursor: default;
+    } 
+    span:nth-child(4) {
+        float: right
+    }
+}
+
+// order-select-info
+@keyframes order-leave
+{
+    from {height: 40px; width: 100%}
+    to {height: 0; width: 0}
+}
+
+@-webkit-keyframes order-leave /*Safari and Chrome*/
+{
+    from {height: 40px; width: 100%}
+    to {height: 0; width: 0}
+}
+
+@-moz-keyframes order-leave /*firefox*/
+{
+    from {height: 40px; width: 100%}
+    to {height: 0; width: 0}
+}
+
+@-o-keyframes order-leave /*Opera*/
+{
+    from {height: 40px; width: 100%}
+    to {height: 0; width: 0}
+}
+
+@keyframes order-enter
+{
+    from {height: 0; width: 0}
+    to {height: 40px; width: 100%}
+}
+
+@-webkit-keyframes order-enter /*Safari and Chrome*/
+{
+    from {height: 0; width: 0}
+    to {height: 40px; width: 100%}
+}
+
+@-moz-keyframes order-enter /*firefox*/
+{
+    from {height: 0; width: 0}
+    to {height: 40px; width: 100%}
+}
+
+@-o-keyframes order-enter /*Opera*/
+{
+    from {height: 0; width: 0}
+    to {height: 40px; width: 100%}
+}
+
+.order-slide-enter-active {
+    animation: order-enter .6s;
+}
+.order-slide-leave-active {
+    animation: order-leave .6s;
+}

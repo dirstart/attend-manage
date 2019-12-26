@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" class="icon" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
+    <title>历史数据调试</title>
+    <desc>Created with Sketch.</desc>
+    <!-- <g id="后台" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> -->
+        <g id="历史数据调试">
+            <path d="M12,8 L12,6 L10,6 L10,8 L9,8 L9,10 L10,10 L10,13 L12,13 L12,10 L13,10 L13,8 L12,8 Z M6,10 L6,6 L4,6 L4,10 L3,10 L3,12 L4,12 L4,13 L6,13 L6,12 L7,12 L7,10 L6,10 Z M1,4 L15,4 L15,15 L1,15 L1,4 Z" id="合并形状"></path>
+            <rect id="矩形-copy-63" x="1" y="1" width="6" height="2"></rect>
+            <rect id="矩形-copy-64" x="8" y="1" width="4" height="2"></rect>
+            <rect id="矩形-copy-121" x="13" y="1" width="2" height="2"></rect>
+        </g>
+    <!-- </g> -->
+</svg>

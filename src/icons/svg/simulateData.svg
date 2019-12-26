@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" class="icon" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
+    <title>模拟推送</title>
+    <desc>Created with Sketch.</desc>
+    <!-- <g id="后台" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> -->
+        <g id="模拟推送">
+            <g id="人车房综合查询-copy-4">
+                <rect id="矩形" transform="translate(8.000000, 9.000000) rotate(15.000000) translate(-8.000000, -9.000000) " x="7" y="5" width="2" height="8" rx="1"></rect>
+                <circle id="椭圆形" cx="9" cy="4" r="4"></circle>
+                <path d="M1,10 L15,10 C15.5522847,10 16,10.4477153 16,11 L16,15 C16,15.5522847 15.5522847,16 15,16 L1,16 C0.44771525,16 6.76353751e-17,15.5522847 0,15 L0,11 C-6.76353751e-17,10.4477153 0.44771525,10 1,10 Z M3,12 C2.44771525,12 2,12.4477153 2,13 C2,13.5522847 2.44771525,14 3,14 C3.55228475,14 4,13.5522847 4,13 C4,12.4477153 3.55228475,12 3,12 Z" id="合并形状"></path>
+            </g>
+        </g>
+    <!-- </g> -->
+</svg>

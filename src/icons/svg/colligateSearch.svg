@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" class="icon" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
+    <title>综合搜索</title>
+    <desc>Created with Sketch.</desc>
+    <!-- <g id="后台" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> -->
+        <g id="综合搜索">
+            <rect id="矩形" x="1" y="1" width="14" height="5" rx="1"></rect>
+            <rect id="矩形-copy-127" x="1" y="7" width="5" height="8" rx="1"></rect>
+            <path d="M11,7 C13.209139,7 15,8.790861 15,11 C15,13.209139 13.209139,15 11,15 C8.790861,15 7,13.209139 7,11 C7,8.790861 8.790861,7 11,7 Z M11,8 C9.34314575,8 8,9.34314575 8,11 C8,12.6568542 9.34314575,14 11,14 C12.6568542,14 14,12.6568542 14,11 C14,9.34314575 12.6568542,8 11,8 Z" id="合并形状"></path>
+            <rect id="矩形-copy-90" transform="translate(14.414214, 14.414214) rotate(45.000000) translate(-14.414214, -14.414214) " x="12.9142136" y="13.9142136" width="3" height="1" rx="0.5"></rect>
+        </g>
+    <!-- </g> -->
+</svg>

@@ -1,0 +1,308 @@
+@import '../mixin';
+
+@font-face {
+  font-family: 'myDIN';
+  src: url-loader('../font/DIN_Alternate_Bold_2.ttf');
+}
+
+$btn-width: 160px;
+$btn-height: 32px;
+
+$primay-color: #0fa0ff;
+
+* {
+  font-family: myDIN;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+
+  &:before,
+  &:after {
+    box-sizing: border-box;
+  }
+}
+
+.app-container {
+    display: flex;
+    flex-flow: column;
+}
+.pages {
+    margin-top: 10px
+}
+// 搜索面板
+@keyframes leave
+{
+    from {height: 108px;}
+    to {height: 0;}
+}
+
+@-webkit-keyframes leave /*Safari and Chrome*/
+{
+    from {height: 108px;}
+    to {height: 0;}
+}
+
+@-moz-keyframes leave /*firefox*/
+{
+    from {height: 108px;}
+    to {height: 0;}
+}
+
+@-o-keyframes leave /*Opera*/
+{
+    from {height: 108px;}
+    to {height: 0;}
+}
+
+@keyframes enter
+{
+    from {height: 0; opacity: 0;}
+    to {height: 108px; opacity: 1;}
+}
+
+@-webkit-keyframes enter /*Safari and Chrome*/
+{
+    from {height: 0; opacity: 0;}
+    to {height: 108px; opacity: 1;}
+}
+
+@-moz-keyframes enter /*firefox*/
+{
+    from {height: 0; opacity: 0;}
+    to {height: 108px; opacity: 1;}
+}
+
+@-o-keyframes enter /*Opera*/
+{
+    from {height: 0; opacity: 0;}
+    to {height: 108px; opacity: 1;}
+}
+
+.slide-enter-active {
+    animation: enter .6s;
+    overflow: visible;
+  }
+  .slide-leave-active {
+    animation: leave .6s;
+    overflow: hidden;
+  }
+
+.search-container{
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 12px
+}
+.search-panel{
+    height: 108px;
+    background: #ffffff;
+    // overflow: hidden;
+
+    .search-item{
+        display: inline-block;
+        width: 45%; 
+        padding: 16px 1% 0; 
+        margin: 0;
+
+        .el-input, .search-iata-picker{
+            width: 75%;
+            margin-left: 12px;
+        }
+        .search-iata-picker {
+            display: inline-block;
+        }
+        span{
+            font-size: 14px;
+        }
+    }
+    .search-item:nth-child(odd){
+        text-align: right;
+        margin-right: 32px;
+    }
+}
+.search-panel-foot{
+    margin-top: 12px;
+    text-align: center;
+    .el-button{
+        width: $btn-width;
+        height: $btn-height;
+    }
+    .arrow{
+        margin-left: 12px;
+        font-size: 12px;
+        color: #ccc;
+        cursor: pointer;
+    }
+}
+
+// 添加航班
+.new-flight{
+    .el-button{
+        width: $btn-width;
+        height: $btn-height;
+        margin: 16px;
+    }
+}
+
+.el-form {
+    text-align: center;
+    .el-form-item{
+        display: inline-block;
+        width: 45%;
+        margin-bottom: 24px;
+        .el-input, .el-select{
+            width: 100%;
+        }
+        span{
+            display: inline-block;
+            width: 100%;
+            text-align: left;
+            margin-bottom: 6px
+        }
+    }
+    .el-form-item:nth-child(5){
+        margin-bottom: 0;
+    }
+    
+    .el-form-item:nth-child(6){
+        margin-bottom: 0;
+    }
+    .el-form-item:nth-child(even) {
+        margin-left: 1.5%
+    }
+}
+.el-dialog__wrapper{
+    .el-dialog__footer{
+        border-top: 0;
+    }
+}
+
+.el-select-dropdown__item{
+    padding: 0 20px !important;
+}
+
+.dialog-footer {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    .el-button{
+        width: $btn-width;
+        height: $btn-height;
+    }
+}
+
+.btn-opt{
+    display: inline-block;
+    font-size: 12px; 
+    color: $primay-color;
+    cursor: pointer;
+}
+.btn-opt + .btn-opt{
+    margin-left: 12px
+}
+.fromToCity {
+    width: 90% !important;
+}
+.detail-panel{
+    .detai-panel-body {
+        width: 100%;
+        padding: 12px 0;
+
+        hr {
+            text-align: center;
+        }
+
+        span {
+            display: inline-block;
+            width: 80px;
+        }
+        span:nth-child(2) {
+            width: calc(100% - 250px);
+            width: -webkit-calc(100% - 250px);
+            width: -moz-calc(100% - 250px);
+            width: -o-calc(100% - 250px);
+        }
+        span:nth-child(3) {
+            width: 60px
+        }
+        .cabin {
+            width: calc(100% - 200px) !important;
+            width: -webkit-calc(100% - 200px) !important;
+            width: -moz-calc(100% - 200px) !important;
+            width: -o-calc(100% - 200px) !important;
+            
+        }
+        .manager-order{
+            color: $primay-color;
+            cursor: pointer;
+        }
+        .no-width {
+            width: 100%
+        }
+    }
+    .nopadding {
+        padding: 0;
+    }
+    .supply {
+        margin-top: 12px;
+    }
+    .dialog-footer {
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        border-top: 0;
+        .el-button {
+            width: $btn-width;
+            height: $btn-height;
+            margin-bottom: 24px;
+        }
+    }
+}
+
+
+.dialog-process-panel, .detail-panel {
+    .dialog-body {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+    .detai-panel-body {
+        display: inline-block;
+        width: 45%;
+        line-height: 40px;
+        span {
+            display: inline-block;
+            min-width: 100px;
+        }
+        span:first-child {
+            color: rgba(0, 0, 0, 0.45)
+        }
+        .update-form-input {
+            display: inline-block;
+            width: 50%;
+        }
+    }
+    .detai-panel-body:nth-child(even) {
+        margin-right: 9%
+    }
+    .process {
+        width: 100%;
+        text-align: center;
+        .process-status {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            background: rgba(51, 144, 255, 1);
+            border-radius: 100px;
+        }
+    }
+    .process-status-desc {
+        margin-top: 10px
+    }
+
+    .dialog-footer {
+        margin-top: 36px
+    }
+}
+
+.primary-color {
+    color: $primay-color;
+    cursor: pointer;
+}

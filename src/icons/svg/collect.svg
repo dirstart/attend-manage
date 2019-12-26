@@ -1,0 +1,8 @@
+<?xml version="1.0" standalone="no" encoding="UTF-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg t="1562903635555" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="11596" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200">
+    <title>采集管理</title>
+    <g id="采集管理">
+        <path d="M736 288v448h32.32c17.472 0 31.68 14.208 31.68 32a32 32 0 0 1-31.68 32h-128.64a31.776 31.776 0 0 1-31.68-32 32 32 0 0 1 31.68-32H672V288h-32.32A31.776 31.776 0 0 1 608 256a32 32 0 0 1 31.68-32h128.64c17.472 0 31.68 14.208 31.68 32a32 32 0 0 1-31.68 32H736zM288 672v64h192V288H288v64h96a32 32 0 1 1 0 64H288v64h64a32 32 0 1 1 0 64H288v64h96a32 32 0 0 1 0 64H288z m224 128H256a32 32 0 0 1-32-32V256a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32v512a32 32 0 0 1-32 32z" p-id="11597"></path>
+    </g>
+</svg>

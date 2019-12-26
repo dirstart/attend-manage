@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" class="icon" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
+    <title>落脚点分析</title>
+    <desc>Created with Sketch.</desc>
+    <!-- <g id="后台" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> -->
+        <g id="落脚点分析">
+            <path d="M5,14.1189121 C1.66666667,10.2569706 -1.59872116e-14,7.45716487 -1.59872116e-14,5.71949485 C-1.59872116e-14,3.11298982 2.23857625,1 5,1 C7.76142375,1 10,3.11298982 10,5.71949485 C10,7.45716487 8.33333333,10.2569706 5,14.1189121 Z M5,4 C3.8954305,4 3,4.8954305 3,6 C3,7.1045695 3.8954305,8 5,8 C6.1045695,8 7,7.1045695 7,6 C7,4.8954305 6.1045695,4 5,4 Z" id="合并形状"></path>
+            <rect id="矩形" x="10" y="11" width="1" height="3" rx="0.5"></rect>
+            <rect id="矩形-copy-60" x="12" y="6" width="1" height="8" rx="0.5"></rect>
+            <rect id="矩形-copy-62" x="0" y="15" width="16" height="1" rx="0.5"></rect>
+            <rect id="矩形-copy-61" x="14" y="8" width="1" height="6" rx="0.5"></rect>
+        </g>
+    <!-- </g> -->
+</svg>

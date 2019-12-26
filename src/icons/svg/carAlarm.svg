@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" class="icon" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
+    <title>车辆告警消息</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="7" height="3"></rect>
+    </defs>
+    <!-- <g id="后台" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"> -->
+        <g id="车辆告警消息">
+            <path d="M8.78222976,2 L7,2 L2.6575227,2 L1.55810547,4 L7,4 L7,8 L2,8 C2,8.55228475 1.55228475,9 1,9 C0.44771525,9 6.76353751e-17,8.55228475 0,8 L0,6 L0,4 L1.67628805,1.45060047 C1.86121945,1.1693457 2.17524144,1 2.51184784,1 L7.61144324,1 C7.96038734,1 8.28409629,1.18189251 8.46556991,1.47993498 L8.78222976,2 Z M2.00034955,7 C2.55203367,7 3,6.55216609 3,5.99970226 C3,5.44719782 2.55203367,5 2.00034955,5 C1.44800828,5 1,5.44719782 1,5.99970226 C1,6.55216609 1.44800828,7 2.00034955,7 Z" id="合并形状"></path>
+            <g id="分组-27-copy" transform="translate(7.000000, 3.000000)">
+                <path d="M4.5,3 C6.43299662,3 8,4.56700338 8,6.5 L8,12 L1,12 L1,6.5 C1,4.56700338 2.56700338,3 4.5,3 Z M6,6.94999094 C6.16155497,6.98278487 6.32876708,7 6.5,7 C6.67123292,7 6.83844503,6.98278487 7,6.94999094 L7,6.5 C7,5.11928813 5.88071187,4 4.5,4 C4.34351956,4 4.19039696,4.01437659 4.04188098,4.04188098 C4.01437659,4.19039696 4,4.34351956 4,4.5 C4,4.69407947 4.02211541,4.88299361 4.06396364,5.06435983 C4.20194743,5.02250585 4.34834545,5 4.5,5 C5.32842712,5 6,5.67157288 6,6.5 L6,6.94999094 Z" id="合并形状"></path>
+                <g id="矩形-copy-47-+-矩形-copy-48-+-矩形-copy-49-Mask" transform="translate(1.000000, 0.000000)">
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <use id="Mask" opacity="0" xlink:href="#path-1"></use>
+                    <rect id="矩形-copy-47" mask="url(#mask-2)" x="3" y="0" width="1" height="2" rx="0.5"></rect>
+                    <rect id="矩形-copy-48" mask="url(#mask-2)" transform="translate(6.060660, 2.060660) rotate(45.000000) translate(-6.060660, -2.060660) " x="5.56066017" y="1.06066017" width="1" height="2" rx="0.5"></rect>
+                    <rect id="矩形-copy-49" mask="url(#mask-2)" transform="translate(1.060660, 2.060660) scale(-1, 1) rotate(45.000000) translate(-1.060660, -2.060660) " x="0.560660172" y="1.06066017" width="1" height="2" rx="0.5"></rect>
+                </g>
+                <rect id="矩形-copy-46" x="0" y="11" width="9" height="1" rx="0.5"></rect>
+            </g>
+        </g>
+    <!-- </g> -->
+</svg>
