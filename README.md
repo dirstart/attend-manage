@@ -35,3 +35,5 @@ let urlList = {
 - 全局封装localstorage常用操作，内置到vue的AiStore对象中
 - 应用组件缓存手段实现多页面切换并添加右键菜单功能
 - 添加路由页面时请配置 **name** 以便keepAlive可以缓存到你的组件
+
+### test
