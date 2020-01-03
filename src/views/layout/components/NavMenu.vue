@@ -68,6 +68,7 @@ export default {
     this.openMenu = this.permissionMenus.children.map(item => item.path);
   },
   computed: {
+    // SSS qs：这边是做有权限的菜单栏的方法?
     ...mapGetters(["userInfo", "permissionMenus"])
   },
   methods: {

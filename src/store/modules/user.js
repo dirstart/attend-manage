@@ -14,6 +14,14 @@ const user = {
           name: '首页',
           icon: 'exportRecord',
           path: '/homepage'
+        }, {
+          name: '个人统计',
+          icon: '',
+          path: '/person'
+        }, {
+          name: '部门统计',
+          icon: '',
+          path: '/depart'
         }]
       }]
     },

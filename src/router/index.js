@@ -30,6 +30,18 @@ export const constantRouterMap = [
       meta: {
         title: '首页'
       }
+    }, {
+      path: '/person',
+      component: _import('statistic/person/index'),
+      meta: {
+        title: '个人统计'
+      }
+    }, {
+      path: '/depart',
+      component: _import('statistic/depart/index'),
+      meta: {
+        title: '部门统计'
+      }
     }]
   }
 ];
