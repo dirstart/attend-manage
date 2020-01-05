@@ -4,11 +4,7 @@ import store from '@/store'
 import { getToken, goLogin } from '@/utils/auth'
 
 // 在config/h5/index.js每新增一个proxy,此处需要新增一个相应的正则匹配规则，并在config/h5/prod.env.js添加相应host
-let urlList = {
-  '/offers': process.env.offers,
-  '/mobile-starter': process.env.mobile_starter,
-  '/compensate': process.env.api_root
-}
+const hostname = process.env.api_root;
 
 
 export default async (setings) => {
@@ -35,16 +31,7 @@ export default async (setings) => {
         customClass: 'common-loading'
       });
     // url加前缀
-    for (let i in urlList) {
-      if(urlList[i] === undefined || urlList[i] == '""') {
-        continue;
-      }
-      let re = new RegExp('^' + i);
-      if (re.test(config.url)) {
-        config.url = urlList[i] + config.url;
-        break;
-      }
-    }
+    config.url = hostname + config.url;
     // Do something before request is sent
     if (store.getters.token) {
       config.headers.managerToken = getToken(); // 让每个请求携带token--['X-Token']为自定义key 请根据实际情况自行修改
@@ -142,15 +129,14 @@ export default async (setings) => {
 
   // 判断是否获取缓存且数据是否存在
   if (cache && store.getters.inspectType(cache)) {
-    // 不用再次请求数据，直接返回缓存数据
     return store.dispatch('getCacheData', cache);
   }
 
   // 是否上传文件
-  // if (isUpload) {
-  //   setings.headers = {
-  //     'Content-Type': 'multipart/form-data'
-  //   }
-  // }
+  if (isUpload) {
+    setings.headers = {
+      'Content-Type': 'multipart/form-data'
+    }
+  }
   return await service(setings)
 }
