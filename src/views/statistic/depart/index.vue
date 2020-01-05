@@ -3,8 +3,19 @@
     <el-row style="height: 100%;">
       <el-col class="all-height" :span="5">
         <el-card size="small" class="all-height msg-wrap">
-          <span class="all-height">部门排行榜</span>
-          <el-tag style="float:right;" type="primary" size="mini">{{commonTime}}</el-tag>
+          <div class="all-height">
+            <div class="rank-header">
+              <span>部门排行榜</span>
+              <el-tag style="float:right;" type="primary" size="mini">{{commonTime}}</el-tag>
+            </div>
+            <div class="rank-body">
+              <div class="rank-item" :class="{'rank-first': index === 0, 'rank-second': index === 1, 'rank-third': index === 2}" v-for="(item, index) in rankingList" :key="index">
+                <span class="rank-num">{{(index + 1) < 10 ? '0' + (index + 1) : (index + 1)}}</span>
+                <span class="rank-name">{{item.departName}}</span>
+                <span class="rank-hour">{{item.allOverTime}}h</span>
+              </div>
+            </div>
+          </div>
         </el-card>
       </el-col>
       <el-col class="all-height" :span="19">
@@ -26,6 +37,16 @@
                   <el-option @click.native="selectAllOrg" :value="1" label="全部部门"></el-option>
                   <el-option @click.native="selectSomeOrg" :value="2" label="选择部门"></el-option>
                 </el-select>
+                <div class="tag-wrap" v-if="orgCompare === 2">
+                  <el-tag
+                    class="tag-item"
+                    size="small"
+                    v-for="(item, index) in selectedOrg"
+                    :key="index"
+                    closable
+                    @close="handleOrgTagClose(index)"
+                  >{{item.departName}}</el-tag>
+                </div>
               </el-col>
             </el-row>
           </div>
@@ -33,17 +54,6 @@
                 <div class="chart-wrap">
                 <el-row>
                   <el-col :span="12">
-                  <div class="tag-wrap" v-if="orgCompare === 2">
-                    选择部门：<el-tag
-                      class="tag-item"
-                      size="small"
-                      v-for="(item, index) in selectedOrg"
-                      :key="index"
-                      closable
-                      @close="handleOrgTagClose(index)"
-                    >{{item.name}}</el-tag>
-                  </div>
-                  <div class="tag-wrap" v-else>选择部门：<el-tag class="tag-item" size="small" type="success">全部部门</el-tag></div>
                   <echart class="first-pie-chart" ref="firstPieDom" auto-resize :options="firstPieOption"></echart>
                   </el-col>
                   <el-col :span="12">
@@ -61,10 +71,10 @@
       top="30vh"
       :visible.sync="orgDialogVisble"
       :close-on-click-modal="false"
-      width="30%"
+      width="33%"
     >
       <el-checkbox-group v-model="formOrg">
-        <el-checkbox v-for="(item,index) in allOrg" :key="index" :label="item.dept">{{item.name}}</el-checkbox>
+        <el-checkbox v-for="(item,index) in allOrg" :key="index" :label="item.departNo">{{item.departName}}</el-checkbox>
       </el-checkbox-group>
       <span slot="footer" class="dialog-footer">
         <el-button @click="orgDialogVisble = false">取 消</el-button>
@@ -75,45 +85,32 @@
 </template>
 
 <script>
-import utils from "../common/utils";
+import {dayToString, rankingSort} from "../common/utils";
 import chartDefault from "../common/chartDefault";
 import {timeInterval} from '../common/documents'
-import {getDepartOvertime} from '@/api/statistic'
+import {getDepartOvertime, getAllPart} from '@/api/statistic'
 export default {
   name: 'depart',
   async created() {
-    this.initFirstPieChart();
-    this.initFirstLineChart();
+    // this.initFirstPieChart();
+    // this.initFirstLineChart();
+    await this.getAllPart()
     await this.getDepartOvertime();
   },
   data() {
     return {
       timeInterval: timeInterval,
-      activeName: "first",
-      commonTime: '近一周',
+      commonTime: '近一月',
       orgCompare: 1,
-      // 选择部门弹窗
       orgDialogVisble: false,
       // 全部部门
-      allOrg: [
-        {
-          dept: "1",
-          name: "信息部"
-        },
-        {
-          dept: "2",
-          name: "电商营销"
-        },
-        {
-          dept: "3",
-          name: "生产运行"
-        }
-      ],
+      allOrg: [],
       // 选择的部门
       formOrg: [],
       selectedOrg: [],
       firstLineOption: {},
       firstPieOption: {},
+      list: []
     };
   },
   methods: {
@@ -123,13 +120,13 @@ export default {
     },
     // 选择部门
     selectSomeOrg() {
-      this.formOrg = this.selectedOrg.map(item => item.dept);
+      this.formOrg = this.selectedOrg.map(item => item.departNo);
       this.orgDialogVisble = true;
     },
     submitFormOrg() {
       this.selectedOrg = this.formOrg.map(item => {
         for (let i = 0; i < this.allOrg.length; i++) {
-          if (this.allOrg[i].dept === item) {
+          if (this.allOrg[i].departNo === item) {
             return this.allOrg[i];
           }
         }
@@ -212,23 +209,51 @@ export default {
         ]
       };
     },
-    getDepartOvertime () {
+    getAllPart () {
       return new Promise((resolve, reject) => {
-        getDepartOvertime().then(res => {
-          console.log('res', res)
+        getAllPart().then(res => {
+          this.allOrg = res.data.data || []
+          resolve(true)
+        })
+      })
+    },
+    getDepartOvertime () {
+      // 一天的值
+      const oneDay = 1000 * 60 * 60 * 24
+      const nowDate = +new Date()
+      const endTime = dayToString(nowDate)
+      let startTime
+      if (this.commonTime === '近一周') {
+        startTime = dayToString(nowDate - 7 * oneDay)
+      } else if (this.commonTime === '近一月') {
+        startTime = dayToString(nowDate - 30 * oneDay)
+      } else {
+        startTime = dayToString(nowDate - 365 * oneDay)
+      }
+      return new Promise((resolve, reject) => {
+        getDepartOvertime({
+          startTime,
+          endTime
+        }).then(res => {
+          const arr = res.data && res.data.data || []
+          this.list = arr.concat(arr).concat(arr).concat(arr).concat(arr)
+          resolve(true)
+          // this.list = arr
         })
       })
     }
   },
   computed: {
-    getIntervalName () {
-      for (let i = 0; i < this.timeInterval.length; i++) {
-        if (this.timeInterval[i].value === this.commonTime) {
-          console.log(this.timeInterval[i])
-          return this.timeInterval[i].label
-        }
-      }
+    rankingList () {
+      const arr = this.list || []
+      return arr.sort(rankingSort('allOverTime')).slice(0, 14)
     }
+  },
+  watch: {
+    commonTime (value) {
+      console.log('commonTime', value)
+      this.getDepartOvertime()
+    } 
   }
 };
 </script>
@@ -246,8 +271,73 @@ export default {
 .depart-wrap {
   height: 100%;
 
+  .rank-header {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+  }
+  .rank-body {
+    margin-top: 10px;
+    display: flex;
+    flex-flow: column;
+    background: #667db6;  /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #667db6, #0082c8, #0082c8, #667db6);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #667db6, #0082c8, #0082c8, #667db6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+
+    padding: 10px;
+    border-radius: 4px;
+    color: #fff;
+    box-shadow: 0 0 2px #3fb3f1;
+    .rank-item {
+      margin-bottom: 6px;
+      height: 30px;
+      line-height: 30px;
+      &.rank-first {
+        .rank-num {
+          background: #FDC830;  /* fallback for old browsers */
+          background: -webkit-linear-gradient(to right, #F37335, #FDC830);  /* Chrome 10-25, Safari 5.1-6 */
+          background: linear-gradient(to right, #F37335, #FDC830); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+        }
+      }
+      &.rank-second {
+        .rank-num {
+          background: #00b09b;  /* fallback for old browsers */
+          background: -webkit-linear-gradient(to right, #96c93d, #00b09b);  /* Chrome 10-25, Safari 5.1-6 */
+          background: linear-gradient(to right, #96c93d, #00b09b); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+        }
+      }
+      &.rank-third {
+        .rank-num {
+          background: #EECDA3;  /* fallback for old browsers */
+          background: -webkit-linear-gradient(to right, #EF629F, #EECDA3);  /* Chrome 10-25, Safari 5.1-6 */
+          background: linear-gradient(to right, #EF629F, #EECDA3); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+        }
+      }
+      .rank-num {
+        display: inline-block;
+        text-align: center;
+        margin: 4px 0;
+        width: 36px;
+        height: 16px;
+        line-height: 16px;
+        color: #fff;
+        border-radius: 5px;
+        font-size: 12px;
+        letter-spacing: 1px;
+      }
+      .rank-name {
+        font-size: 14px;
+        text-shadow: 0 0 1px #089e8a;
+      }
+      .rank-hour {
+        display: inline-block;
+        font-size: 10px;
+      }
+    }
+  }
+
   .tag-wrap {
-    margin: 10px 0 20px 0;
+    margin-top: 5px;
+    float: right;
     font-size: 12px;
     height: 26px;
     .tag-item {

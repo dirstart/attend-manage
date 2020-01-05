@@ -18,3 +18,12 @@ export function getPersonOvertime (data) {
     data: data || {}
   })
 }
+
+// 获取全部部门
+export function getAllPart(params){
+  return request({
+    url:'/depart',
+    method:'get',
+    params
+  })
+}
