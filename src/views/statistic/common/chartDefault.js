@@ -1,8 +1,8 @@
 const toolBox = {
   show: true,
-  orient: 'vertical',
-  left: '2%',
-  top: 'middle',
+  orient: 'horizontal',
+  left: '15%',
+  top: '70%',
   itemGap: 20,
   feature: {
     mark: { show: true },
@@ -18,7 +18,7 @@ const pieLegend = {
   orient: "vertical",
   right: 10,
   top: 20,
-  bottom: 20,
+  bottom: 100,
   data: []
 }
 

@@ -7,35 +7,11 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {
-      // '/api': {
-      //   target: `http://192.168.10.203`,
-      //   pathRewrite: {
-      //     '^/api': '/api/',
-      //     changeOrigin: true
-      //   }
-      // },
-      '/offers': {
-        target: 'http://11.4.66.55:8080/api',
-      },
-      '/mobile-starter': {
-        target: 'https://mobileapi.xiamenair.com', // 测试地址
-        secure: false,
-        changeOrigin: true // 如果接口跨域，需要进行这个参数配置
-      },
-      '/compensate': {
-        // target: 'http://localhost:8010', // 本机
-        // target: 'https://csapitest.xiamenair.com', // 测试地址
-        target: 'http://11.153.48.244:8888/manager',
-        // target: 'http://hcsadmin.xiamenair.com.cn/api',
-        // target: 'https://wxpublictest.xiamenair.com', // 微信代理了渠道站（https），此域名可外网访问
-        secure: false,
-        changeOrigin: true
-      }
-    },
+    proxyTable: {},
     // Various Dev Server settings
     // host: '11.153.240.109', // can be overwritten by process.env.HOST
     host: 'localhost', // can be overwritten by process.env.HOST
+    // host: '192.168.43.16',
     port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,

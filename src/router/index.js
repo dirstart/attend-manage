@@ -33,12 +33,14 @@ export const constantRouterMap = [
     }, {
       path: '/person',
       component: _import('statistic/person/index'),
+      name: 'person',
       meta: {
         title: '个人统计'
       }
     }, {
       path: '/depart',
       component: _import('statistic/depart/index'),
+      name: 'depart',
       meta: {
         title: '部门统计'
       }

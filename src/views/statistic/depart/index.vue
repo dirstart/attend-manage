@@ -1,52 +1,57 @@
 <template>
   <div class="depart-wrap">
     <el-row style="height: 100%;">
-      <el-col class="all-height" :span="4">
-        <el-card class="all-height msg-wrap">
-          <div class="all-height">部门排行榜</div>
+      <el-col class="all-height" :span="5">
+        <el-card size="small" class="all-height msg-wrap">
+          <span class="all-height">部门排行榜</span>
+          <el-tag style="float:right;" type="primary" size="mini">{{commonTime}}</el-tag>
         </el-card>
       </el-col>
-      <el-col class="all-height" :span="20">
+      <el-col class="all-height" :span="19">
         <el-card class="all-height chart-wrap">
-          <el-tabs v-model="activeName" @tab-click="handleClick">
-            <el-tab-pane label="各部门占比" name="first">
-              <div>
-                <label style="margin-right: 10px;">对比部门</label>
-                <el-select size="small" v-model="orgCompare" placeholder="请选择">
+          <div slot="header">
+            <el-row>
+              <el-col :span="6">
+                部门分类统计
+              </el-col>
+              <el-col :span="18">              
+                <el-radio-group class="float-right" v-model="commonTime" size="mini">
+                  <el-radio-button v-for="(item, index) in timeInterval"
+                    :value="item.value"
+                    :label="item.label"
+                    :key="index"
+                  ></el-radio-button>
+                </el-radio-group>
+                <el-select class="float-right" style="width:110px;margin-top:2px;margin-right: 10px;line-height: 28px;" size="mini" v-model="orgCompare" placeholder="请选择">
                   <el-option @click.native="selectAllOrg" :value="1" label="全部部门"></el-option>
                   <el-option @click.native="selectSomeOrg" :value="2" label="选择部门"></el-option>
                 </el-select>
-                <div class="tag-wrap" v-if="orgCompare === 2">
-                  <el-tag
-                    class="tag-item"
-                    v-for="(item, index) in selectedOrg"
-                    :key="index"
-                    closable
-                    @close="handleOrgTagClose(index)"
-                  >{{item.name}}</el-tag>
-                </div>
-                <hr style="color:#eee;" />
+              </el-col>
+            </el-row>
+          </div>
+            <div>
                 <div class="chart-wrap">
-                  <echart ref="firstDom" auto-resize :options="firstOption"></echart>
-                </div>
+                <el-row>
+                  <el-col :span="12">
+                  <div class="tag-wrap" v-if="orgCompare === 2">
+                    选择部门：<el-tag
+                      class="tag-item"
+                      size="small"
+                      v-for="(item, index) in selectedOrg"
+                      :key="index"
+                      closable
+                      @close="handleOrgTagClose(index)"
+                    >{{item.name}}</el-tag>
+                  </div>
+                  <div class="tag-wrap" v-else>选择部门：<el-tag class="tag-item" size="small" type="success">全部部门</el-tag></div>
+                  <echart class="first-pie-chart" ref="firstPieDom" auto-resize :options="firstPieOption"></echart>
+                  </el-col>
+                  <el-col :span="12">
+                    右边有两个
+                  </el-col>
+                </el-row>
               </div>
-            </el-tab-pane>
-            <el-tab-pane label="部门内加班占比" name="second">
-              <div class="chart-wrap">
-                <echart ref="secondDom" auto-resize :options="secondOption"></echart>
-              </div>
-            </el-tab-pane>
-            <el-tab-pane label="各部门加班曲线" name="third">
-              <div class="chart-wrap">
-                <echart ref="thirdDom" auto-resize :options="thirdOption"></echart>
-              </div>
-            </el-tab-pane>
-            <el-tab-pane label="部门内加班曲线" name="fourth">
-              <div class="chart-wrap">
-                <echart ref="fourthDom" auto-resize :options="fourthOption"></echart>
-              </div>
-            </el-tab-pane>
-          </el-tabs>
+            </div>
         </el-card>
       </el-col>
     </el-row>
@@ -72,13 +77,20 @@
 <script>
 import utils from "../common/utils";
 import chartDefault from "../common/chartDefault";
+import {timeInterval} from '../common/documents'
+import {getDepartOvertime} from '@/api/statistic'
 export default {
-  created() {
-    this.initFirstChart();
+  name: 'depart',
+  async created() {
+    this.initFirstPieChart();
+    this.initFirstLineChart();
+    await this.getDepartOvertime();
   },
   data() {
     return {
+      timeInterval: timeInterval,
       activeName: "first",
+      commonTime: '近一周',
       orgCompare: 1,
       // 选择部门弹窗
       orgDialogVisble: false,
@@ -100,28 +112,11 @@ export default {
       // 选择的部门
       formOrg: [],
       selectedOrg: [],
-      firstOption: {},
-      secondOption: {},
-      thirdOption: {},
-      fourthOption: {}
+      firstLineOption: {},
+      firstPieOption: {},
     };
   },
   methods: {
-    handleClick(tab, event, index) {
-      // this[`init${this.activeName}Chart`]()
-      if (this.activeName === 'first') {
-        this.initFirstChart();
-      } else if (this.activeName === 'second') {
-        this.initSecondChart();
-      } else if (this.activeName === 'third') {
-        this.initThirdChart();
-      } else if (this.activeName === 'fourth') {
-        this.initFourthChart();
-      }
-      this.$nextTick(() => {
-        this.$refs[`${this.activeName}Dom`].resize();
-      });
-    },
     // 全部部门
     selectAllOrg() {
       this.selectedOrg = [];
@@ -144,20 +139,24 @@ export default {
     // 各部门占比
     handleOrgTagClose(index) {
       this.selectedOrg.splice(index, 1);
-      this.initFirstChart();
+      this.initFirstPieChart();
+      this.initFirstLineChart();
     },
     // 各部门时长占比图
-    initFirstChart() {
+    initFirstPieChart() {
       let legendData = [];
       let seriesData = [];
       if (this.orgCompare === 1) {
         legendData = this.allOrg.map(item => item.name);
       }
-      this.firstOption = {
+      this.firstPieOption = {
         title: {
           text: "各部门加班时长占比",
+          textStyle: {
+            fontSize: 14
+          },
           subText: "纯属虚构",
-          left: "center"
+          left: '22%'
         },
         tooltip: {
           trigger: "item",
@@ -166,14 +165,18 @@ export default {
         },
         toolbox: chartDefault.all.toolBox,
         legend: Object.assign(chartDefault.pie.legend, {
-          data: this.allOrg.map(item => item.name)
+          data: this.allOrg.map(item => item.name),
+          left: '10%',
+          top: '60%',
+          type: 'scroll',
+          orient: 'horizontal'
         }),
         series: [
           {
             name: "部门",
             type: "pie",
-            radius: "55%",
-            center: ["40%", "50%"],
+            radius: "40%",
+            center: ["40%", "30%"],
             // data: data.seriesData,
             data: this.allOrg.map(item => {
               return {
@@ -192,48 +195,8 @@ export default {
         ]
       };
     },
-    initSecondChart() {
-      const data = utils.genData(50);
-      this.secondOption = {
-        title: {
-          text: "部门内加班占比",
-          subtext: "纯属虚构",
-          left: "center"
-        },
-        tooltip: {
-          trigger: "item",
-          formatter: "{a} <br/>{b} : {c} ({d}%)"
-        },
-        legend: {
-          type: "scroll",
-          orient: "vertical",
-          right: 10,
-          top: 20,
-          bottom: 20,
-          data: data.legendData,
-
-          selected: data.selected
-        },
-        series: [
-          {
-            name: "姓名",
-            type: "pie",
-            radius: "55%",
-            center: ["40%", "50%"],
-            data: data.seriesData,
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)"
-              }
-            }
-          }
-        ]
-      };
-    },
-    initThirdChart() {
-      this.thirdOption = {
+    initFirstLineChart() {
+      this.firstLineChart = {
         xAxis: {
           type: "category",
           data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -249,22 +212,22 @@ export default {
         ]
       };
     },
-    initFourthChart() {
-      this.fourthOption = {
-        xAxis: {
-          type: "category",
-          data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-        },
-        yAxis: {
-          type: "value"
-        },
-        series: [
-          {
-            data: [820, 932, 901, 934, 1290, 1330, 1320],
-            type: "line"
-          }
-        ]
-      };
+    getDepartOvertime () {
+      return new Promise((resolve, reject) => {
+        getDepartOvertime().then(res => {
+          console.log('res', res)
+        })
+      })
+    }
+  },
+  computed: {
+    getIntervalName () {
+      for (let i = 0; i < this.timeInterval.length; i++) {
+        if (this.timeInterval[i].value === this.commonTime) {
+          console.log(this.timeInterval[i])
+          return this.timeInterval[i].label
+        }
+      }
     }
   }
 };
@@ -277,11 +240,16 @@ export default {
 .all-width {
   width: 100%;
 }
+.float-right {
+  float: right;
+}
 .depart-wrap {
   height: 100%;
 
   .tag-wrap {
-    margin: 10px 0;
+    margin: 10px 0 20px 0;
+    font-size: 12px;
+    height: 26px;
     .tag-item {
       margin-right: 5px;
     }
@@ -290,6 +258,16 @@ export default {
     display: block;
     margin-left: 10px;
     height: 100%;
+  }
+  .moni-tag {
+    color: #089e8a;
+    float: right;
+    font-size: 12px;
+    line-height: 18px;
+    text-shadow: 0 0 3px #eee;
+  }
+  .first-pie-chart {
+    height: 500px;
   }
 }
 </style>
