@@ -9,10 +9,13 @@
               <el-tag style="float:right;" type="primary" size="mini">{{commonTime}}</el-tag>
             </div>
             <div class="rank-body">
-              <div class="rank-item" :class="{'rank-first': index === 0, 'rank-second': index === 1, 'rank-third': index === 2}" v-for="(item, index) in rankingList" :key="index">
+              <div v-if="rankingList.length > 0" class="rank-item" :class="{'rank-first': index === 0, 'rank-second': index === 1, 'rank-third': index === 2}" v-for="(item, index) in rankingList" :key="index">
                 <span class="rank-num">{{(index + 1) < 10 ? '0' + (index + 1) : (index + 1)}}</span>
                 <span class="rank-name">{{item.departName}}</span>
                 <span class="rank-hour">{{item.allOverTime}}h</span>
+              </div>
+              <div class="no-data" v-if="rankingList.length === 0">
+                暂无数据
               </div>
             </div>
           </div>
@@ -54,10 +57,11 @@
                 <div class="chart-wrap">
                 <el-row>
                   <el-col :span="12">
-                  <echart class="first-pie-chart" ref="firstPieDom" auto-resize :options="firstPieOption"></echart>
+                    <echart class="first-pie-chart" ref="firstPieDom" auto-resize :options="firstPieOption"></echart>
                   </el-col>
                   <el-col :span="12">
                     右边有两个
+                    <echart class="first-line-chart" ref="firstLineDom" auto-resize :options="firstLineOption"></echart>
                   </el-col>
                 </el-row>
               </div>
@@ -88,14 +92,13 @@
 import {dayToString, rankingSort} from "../common/utils";
 import chartDefault from "../common/chartDefault";
 import {timeInterval} from '../common/documents'
-import {getDepartOvertime, getAllPart} from '@/api/statistic'
+import {getDepartOvertime, getAllPart, getDepartLine} from '@/api/statistic'
 export default {
   name: 'depart',
   async created() {
-    // this.initFirstPieChart();
-    // this.initFirstLineChart();
     await this.getAllPart()
     await this.getDepartOvertime();
+    await this.getDepartLine();
   },
   data() {
     return {
@@ -105,18 +108,20 @@ export default {
       orgDialogVisble: false,
       // 全部部门
       allOrg: [],
-      // 选择的部门
       formOrg: [],
       selectedOrg: [],
       firstLineOption: {},
       firstPieOption: {},
-      list: []
+      // 后端返回数据
+      list: [],
+      pieChartData: []
     };
   },
   methods: {
     // 全部部门
     selectAllOrg() {
-      this.selectedOrg = [];
+      this.getDepartOvertime()
+      this.getDepartLine()
     },
     // 选择部门
     selectSomeOrg() {
@@ -132,20 +137,19 @@ export default {
         }
       });
       this.orgDialogVisble = false;
+      this.getDepartOvertime()
+      this.getDepartLine()
     },
     // 各部门占比
     handleOrgTagClose(index) {
       this.selectedOrg.splice(index, 1);
-      this.initFirstPieChart();
-      this.initFirstLineChart();
+      this.getDepartOvertime()
+      this.getDepartLine()
     },
     // 各部门时长占比图
     initFirstPieChart() {
       let legendData = [];
       let seriesData = [];
-      if (this.orgCompare === 1) {
-        legendData = this.allOrg.map(item => item.name);
-      }
       this.firstPieOption = {
         title: {
           text: "各部门加班时长占比",
@@ -160,9 +164,9 @@ export default {
           formatter: "{b}(部门)<br/> 加班时长{c}小时 - 占比：{d}%"
           // formatter: "{a} <br/>{b}: {c} ({d}%)"
         },
-        toolbox: chartDefault.all.toolBox,
+        // toolbox: chartDefault.all.toolBox,
         legend: Object.assign(chartDefault.pie.legend, {
-          data: this.allOrg.map(item => item.name),
+          data: this.list.map(item => item.departName),
           left: '10%',
           top: '60%',
           type: 'scroll',
@@ -174,12 +178,11 @@ export default {
             type: "pie",
             radius: "40%",
             center: ["40%", "30%"],
-            // data: data.seriesData,
-            data: this.allOrg.map(item => {
+            data: this.list.map(item => {
               return {
-                name: item.name,
-                value: 1
-              };
+                name: item.departName,
+                value: item.allOverTime
+              }
             }),
             emphasis: {
               itemStyle: {
@@ -194,19 +197,10 @@ export default {
     },
     initFirstLineChart() {
       this.firstLineChart = {
-        xAxis: {
-          type: "category",
-          data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        title: {
+          text: '折线图堆叠'
         },
-        yAxis: {
-          type: "value"
-        },
-        series: [
-          {
-            data: [820, 932, 901, 934, 1290, 1330, 1320],
-            type: "line"
-          }
-        ]
+        // legend: 
       };
     },
     getAllPart () {
@@ -217,12 +211,13 @@ export default {
         })
       })
     },
-    getDepartOvertime () {
+    getDepartLine () {
       // 一天的值
       const oneDay = 1000 * 60 * 60 * 24
       const nowDate = +new Date()
       const endTime = dayToString(nowDate)
       let startTime
+      let departNos
       if (this.commonTime === '近一周') {
         startTime = dayToString(nowDate - 7 * oneDay)
       } else if (this.commonTime === '近一月') {
@@ -230,15 +225,55 @@ export default {
       } else {
         startTime = dayToString(nowDate - 365 * oneDay)
       }
+      // 所有部门
+      if (this.orgCompare === 1) {
+        departNos = []
+      } else {
+        departNos = this.selectedOrg.map(item => item.departNo)
+      }
+      return new Promise((resolve, reject) => {
+        getDepartLine({
+          startTime,
+          endTime,
+          departNos
+        }).then(res => {
+          const arr = res.data && res.data.data || []
+          this.initFirstLineChart()
+          resolve(true)
+        })
+      })
+    },
+    getDepartOvertime () {
+      // 一天的值
+      const oneDay = 1000 * 60 * 60 * 24
+      const nowDate = +new Date()
+      const endTime = dayToString(nowDate)
+      let startTime
+      let departNos
+      if (this.commonTime === '近一周') {
+        startTime = dayToString(nowDate - 7 * oneDay)
+      } else if (this.commonTime === '近一月') {
+        startTime = dayToString(nowDate - 30 * oneDay)
+      } else {
+        startTime = dayToString(nowDate - 365 * oneDay)
+      }
+      // 所有部门
+      if (this.orgCompare === 1) {
+        departNos = []
+      } else {
+        departNos = this.selectedOrg.map(item => item.departNo)
+      }
       return new Promise((resolve, reject) => {
         getDepartOvertime({
           startTime,
-          endTime
+          endTime,
+          departNos
         }).then(res => {
           const arr = res.data && res.data.data || []
-          this.list = arr.concat(arr).concat(arr).concat(arr).concat(arr)
+          // this.list = arr.concat(arr).concat(arr).concat(arr).concat(arr)
+          this.list = arr
+          this.initFirstPieChart()
           resolve(true)
-          // this.list = arr
         })
       })
     }
@@ -253,6 +288,7 @@ export default {
     commonTime (value) {
       console.log('commonTime', value)
       this.getDepartOvertime()
+      this.getDepartLine()
     } 
   }
 };
@@ -275,10 +311,17 @@ export default {
     padding-bottom: 10px;
     border-bottom: 1px solid #eee;
   }
+  .no-data {
+    font-size: 12px;
+    text-align: center;
+    position: relative;
+    top: 240px;
+  }
   .rank-body {
     margin-top: 10px;
     display: flex;
     flex-flow: column;
+    height: 500px;
     background: #667db6;  /* fallback for old browsers */
     background: -webkit-linear-gradient(to right, #667db6, #0082c8, #0082c8, #667db6);  /* Chrome 10-25, Safari 5.1-6 */
     background: linear-gradient(to right, #667db6, #0082c8, #0082c8, #667db6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
@@ -357,7 +400,12 @@ export default {
     text-shadow: 0 0 3px #eee;
   }
   .first-pie-chart {
-    height: 500px;
+    // height: 350px;
+  }
+  .first-pie-chart,
+  .first-line-chart {
+    // background: #EECDA3;
+    border-radius: 10px;
   }
 }
 </style>
