@@ -16,9 +16,11 @@ import './permission' // permission control
 import Permission from '@/common/component/Permission'
 import CityPicker from '@/common/component/CityPicker'
 import DatePicker from '@/common/component/DatePicker'
+import Echart from '@/common/component/Echarts'
 
 Vue.component('city-picker', CityPicker);
 Vue.component('date-picker', DatePicker);
+Vue.component('echart', Echart)
 
 Vue.use(Permission);
 Vue.use(Element, {
