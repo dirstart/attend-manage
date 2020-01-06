@@ -1,7 +1,10 @@
 <template>
   <div class="depart-wrap">
-    <el-row style="height: 100%;">
-      <el-col class="all-height" :span="5">
+    <!-- <el-row style="height: 100%;"> -->
+      <!-- <el-col class="all-height" :xs="10" :sm="10" :md="10" :lg="5"> -->
+
+      <!-- </el-col> -->
+      <!-- <el-col class="all-height" :xs="14" :sm="14" :md="14" :lg="19"> -->
         <el-card size="small" class="all-height msg-wrap">
           <div class="all-height">
             <div class="rank-header">
@@ -20,8 +23,6 @@
             </div>
           </div>
         </el-card>
-      </el-col>
-      <el-col class="all-height" :span="19">
         <el-card class="all-height chart-wrap">
           <div slot="header">
             <el-row>
@@ -53,23 +54,13 @@
               </el-col>
             </el-row>
           </div>
-            <div>
-                <div class="chart-wrap">
-                <el-row>
-                  <el-col :span="12">
-                    <echart class="first-pie-chart" ref="firstPieDom" auto-resize :options="firstPieOption"></echart>
-                  </el-col>
-                  <el-col :span="12">
-                    右边有两个
-                    <echart class="first-line-chart" ref="firstLineDom" auto-resize :options="firstLineOption"></echart>
-                  </el-col>
-                </el-row>
-              </div>
+          <div>
+            <div class="chart-group">
+              <echart class="first-pie-chart" ref="firstPieDom" auto-resize :options="firstPieOption"></echart>
+              <echart class="first-line-chart" ref="firstLineDom" auto-resize :options="firstLineOption"></echart>
             </div>
+          </div>
         </el-card>
-      </el-col>
-    </el-row>
-
     <el-dialog
       title="选择部门"
       top="30vh"
@@ -99,6 +90,7 @@ export default {
     await this.getAllPart()
     await this.getDepartOvertime();
     await this.getDepartLine();
+    this.initFirstLineChart()
   },
   data() {
     return {
@@ -114,7 +106,8 @@ export default {
       firstPieOption: {},
       // 后端返回数据
       list: [],
-      pieChartData: []
+      pieChartData: [],
+      lineData: []
     };
   },
   methods: {
@@ -196,12 +189,68 @@ export default {
       };
     },
     initFirstLineChart() {
-      this.firstLineChart = {
+      this.firstLineOption = {
         title: {
-          text: '折线图堆叠'
+        text: '折线图堆叠'
+    },
+    tooltip: {
+        trigger: 'axis'
+    },
+    legend: {
+        data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
+    },
+    grid: {
+        left: '3%',
+        right: '10%',
+        bottom: '3%',
+        containLabel: true
+    },
+    toolbox: {
+        feature: {
+            saveAsImage: {}
+        }
+    },
+    xAxis: {
+        type: 'category',
+        boundaryGap: false,
+        data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+    },
+    yAxis: {
+        type: 'value'
+    },
+    series: [
+        {
+            name: '邮件营销',
+            type: 'line',
+            stack: '总量',
+            data: [120, 132, 101, 134, 90, 230, 210]
         },
-        // legend: 
-      };
+        {
+            name: '联盟广告',
+            type: 'line',
+            stack: '总量',
+            data: [220, 182, 191, 234, 290, 330, 310]
+        },
+        {
+            name: '视频广告',
+            type: 'line',
+            stack: '总量',
+            data: [150, 232, 201, 154, 190, 330, 410]
+        },
+        {
+            name: '直接访问',
+            type: 'line',
+            stack: '总量',
+            data: [320, 332, 301, 334, 390, 330, 320]
+        },
+        {
+            name: '搜索引擎',
+            type: 'line',
+            stack: '总量',
+            data: [820, 932, 901, 934, 1290, 1330, 1320]
+        }
+    ]
+      }
     },
     getAllPart () {
       return new Promise((resolve, reject) => {
@@ -238,10 +287,22 @@ export default {
           departNos
         }).then(res => {
           const arr = res.data && res.data.data || []
+          this.lineData = this.handleLineData(arr)
           this.initFirstLineChart()
           resolve(true)
         })
       })
+    },
+    handleLineData (arr) {
+      arr = arr || []
+      let obj = {}
+      let test = []
+      for (let i = 0; i < arr.length; i++) {
+        if (arr[i].departNo === 'T001') {
+          test.push(arr[i].date)
+        }
+      }
+      console.log(test)
     },
     getDepartOvertime () {
       // 一天的值
@@ -305,7 +366,26 @@ export default {
   float: right;
 }
 .depart-wrap {
+  display: flex;
   height: 100%;
+  .msg-wrap {
+    min-height: 300px;
+  }
+  .chart-wrap {
+    flex: 1;
+    .chart-group {
+      width: 100%;
+      display: flex;
+      .first-pie-chart {
+        // flex: 1;
+        max-width: 400px;
+      }
+      .first-line-chart {
+        flex: 1;
+        // max-width: 400px;
+      }
+    }
+  }
 
   .rank-header {
     padding-bottom: 10px;
@@ -388,7 +468,6 @@ export default {
     }
   }
   .chart-wrap {
-    display: block;
     margin-left: 10px;
     height: 100%;
   }
@@ -398,14 +477,6 @@ export default {
     font-size: 12px;
     line-height: 18px;
     text-shadow: 0 0 3px #eee;
-  }
-  .first-pie-chart {
-    // height: 350px;
-  }
-  .first-pie-chart,
-  .first-line-chart {
-    // background: #EECDA3;
-    border-radius: 10px;
   }
 }
 </style>
