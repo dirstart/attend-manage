@@ -1,68 +1,65 @@
 <template>
   <div class="depart-wrap">
-    <!-- <el-row style="height: 100%;"> -->
-      <!-- <el-col class="all-height" :xs="10" :sm="10" :md="10" :lg="5"> -->
-
-      <!-- </el-col> -->
-      <!-- <el-col class="all-height" :xs="14" :sm="14" :md="14" :lg="19"> -->
-        <el-card size="small" class="all-height msg-wrap">
-          <div class="all-height">
-            <div class="rank-header">
-              <span>部门排行榜</span>
-              <el-tag style="float:right;" type="primary" size="mini">{{commonTime}}</el-tag>
+    <el-card class="all-height chart-wrap">
+      <div slot="header">
+        <el-row>
+          <el-col :span="6">
+            部门分类统计
+          </el-col>
+          <el-col :span="18">              
+            <el-radio-group class="float-right" v-model="commonTime" size="mini">
+              <el-radio-button v-for="(item, index) in timeInterval"
+                :value="item.value"
+                :label="item.label"
+                :key="index"
+              ></el-radio-button>
+            </el-radio-group>
+            <el-select class="float-right" style="width:110px;margin-top:2px;margin-right: 10px;line-height: 28px;" size="mini" v-model="orgCompare" placeholder="请选择">
+              <el-option @click.native="selectAllOrg" :value="1" label="全部部门"></el-option>
+              <el-option @click.native="selectSomeOrg" :value="2" label="选择部门"></el-option>
+            </el-select>
+            <div class="tag-wrap" v-if="orgCompare === 2">
+              <el-tag
+                class="tag-item"
+                size="small"
+                v-for="(item, index) in selectedOrg"
+                :key="index"
+                closable
+                @close="handleOrgTagClose(index)"
+              >{{item.departName}}</el-tag>
             </div>
-            <div class="rank-body">
-              <div v-if="rankingList.length > 0" class="rank-item" :class="{'rank-first': index === 0, 'rank-second': index === 1, 'rank-third': index === 2}" v-for="(item, index) in rankingList" :key="index">
-                <span class="rank-num">{{(index + 1) < 10 ? '0' + (index + 1) : (index + 1)}}</span>
-                <span class="rank-name">{{item.departName}}</span>
-                <span class="rank-hour">{{item.allOverTime}}h</span>
-              </div>
-              <div class="no-data" v-if="rankingList.length === 0">
-                暂无数据
-              </div>
-            </div>
+          </el-col>
+        </el-row>
+      </div>
+      <!-- 图表 panel -->
+      <div class="chart-pannel">
+        <div class="chart-group">
+          <!-- <echart class="first-pie-chart" ref="firstPieDom" auto-resize :options="firstPieOption"></echart> -->
+          <!-- <div style="height: 100px;">
+            <echart class="first-line-chart" ref="firstLineDom" auto-resize :options="firstLineOption"></echart>
+          </div> -->
+          <!-- <div id="test"></div> -->
+        </div>
+      </div>
+    </el-card>
+    <el-card size="small" class="all-height msg-wrap">
+      <div class="all-height">
+        <div class="rank-header">
+          <span>部门排行榜</span>
+          <el-tag style="float:right;" type="primary" size="mini">{{commonTime}}</el-tag>
+        </div>
+        <div class="rank-body">
+          <div v-if="rankingList.length > 0" class="rank-item" :class="{'rank-first': index === 0, 'rank-second': index === 1, 'rank-third': index === 2}" v-for="(item, index) in rankingList" :key="index">
+            <span class="rank-num">{{(index + 1) < 10 ? '0' + (index + 1) : (index + 1)}}</span>
+            <span class="rank-name">{{item.departName}}</span>
+            <span class="rank-hour">{{item.allOverTime}}h</span>
           </div>
-        </el-card>
-        <el-card class="all-height chart-wrap">
-          <div slot="header">
-            <el-row>
-              <el-col :span="6">
-                部门分类统计
-              </el-col>
-              <el-col :span="18">              
-                <el-radio-group class="float-right" v-model="commonTime" size="mini">
-                  <el-radio-button v-for="(item, index) in timeInterval"
-                    :value="item.value"
-                    :label="item.label"
-                    :key="index"
-                  ></el-radio-button>
-                </el-radio-group>
-                <el-select class="float-right" style="width:110px;margin-top:2px;margin-right: 10px;line-height: 28px;" size="mini" v-model="orgCompare" placeholder="请选择">
-                  <el-option @click.native="selectAllOrg" :value="1" label="全部部门"></el-option>
-                  <el-option @click.native="selectSomeOrg" :value="2" label="选择部门"></el-option>
-                </el-select>
-                <div class="tag-wrap" v-if="orgCompare === 2">
-                  <el-tag
-                    class="tag-item"
-                    size="small"
-                    v-for="(item, index) in selectedOrg"
-                    :key="index"
-                    closable
-                    @close="handleOrgTagClose(index)"
-                  >{{item.departName}}</el-tag>
-                </div>
-              </el-col>
-            </el-row>
+          <div class="no-data" v-if="rankingList.length === 0">
+            暂无数据
           </div>
-          <div class="chart-pannel">
-            <div class="chart-group">
-              <echart class="first-pie-chart" ref="firstPieDom" auto-resize :options="firstPieOption"></echart>
-              <div style="height: 100px;">
-                <echart class="first-line-chart" ref="firstLineDom" auto-resize :options="firstLineOption"></echart>
-              </div>
-            </div>
-          </div>
-        </el-card>
+        </div>
+      </div>
+    </el-card>
     <el-dialog
       title="选择部门"
       top="30vh"
@@ -109,7 +106,16 @@ export default {
       // 后端返回数据
       list: [],
       pieChartData: [],
-      lineData: []
+      lineData: [],
+      // test
+      chart: null,
+       data: [
+        { genre: "Sports", sold: 275 },
+        { genre: "Strategy", sold: 115 },
+        { genre: "Action", sold: 120 },
+        { genre: "Shooter", sold: 350 },
+        { genre: "Other", sold: 150 }
+      ]
     };
   },
   methods: {
@@ -437,6 +443,19 @@ export default {
       })
     }
   },
+  mounted () {
+    const chart = new G2.Chart({
+      container: "test",
+      width: 600,
+      height: 300
+    })
+    chart.source(this.data)
+    chart.interval()
+      .position("genre*sold")
+      .color('genre')
+    this.chart = chart
+    this.chart.render()
+  },
   computed: {
     rankingList () {
       const arr = this.list || []
@@ -466,42 +485,21 @@ export default {
 .depart-wrap {
   display: flex;
   height: 100%;
+  min-width: 900px;
   .msg-wrap {
     min-height: 300px;
   }
   .chart-wrap {
+    margin-right: 10px;
     flex: 1;
     .chart-panel {
       display: block;
       height: 100%;
     };
-
-    // &.el-card > .el-card__body {
-    //   height: calc(100% - 100px) !important;
-    //   > .chart-pannel {
-    //     height: 100%;
-    //     > .chart-group {
-    //       height: 49%;
-    //       margin-bottom: 0.5%;
-    //       > .first-line-chart,
-    //       > .first-pie-chart {
-    //         width: 50%;
-    //         height: 100%;
-    //       }
-    //     }
-    //   }
-    // }
     .first-pie-chart {
       width: 500px;
       height: 320px;
     }
-  }
-
-  .four-chart {
-    display: inline-block;
-    width: 48%;
-    height: 100%;
-    // background: #eee;
   }
 
   .rank-header {
@@ -584,10 +582,6 @@ export default {
     .tag-item {
       margin-right: 5px;
     }
-  }
-  .chart-wrap {
-    margin-left: 10px;
-    height: 100%;
   }
   .moni-tag {
     color: #089e8a;
