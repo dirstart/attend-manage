@@ -12,6 +12,7 @@
     "build": "cross-env NODE_ENV=production node build/build.js"
   },
   "dependencies": {
+    "@antv/g2": "^3.5.11",
     "axios": "0.17.1",
     "clipboard": "1.7.1",
     "codemirror": "5.32.0",
