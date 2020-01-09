@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import {Column, Pie, Line, Bar} from '@antv/g2plot';
+import {Column, Pie, Line, Bar, Gauge} from '@antv/g2plot';
 import {dayToString, rankingSort} from "../common/utils";
 import {timeInterval} from '../common/documents'
 import {getDepartOvertime, getAllPart, getDepartLine} from '@/api/statistic'
@@ -153,7 +153,7 @@ export default {
             height: 300,
             title: {
               visible: true,
-              text: '部门间加班时长',
+              text: '各部门加班时长柱形图',
             },
             forceFit: true,
             padding: 'auto',
@@ -183,7 +183,7 @@ export default {
             forceFit: true,
             title: {
               visible: true,
-              text: '部门间加班时长占比',
+              text: '各部门加班时长占比',
             },
             description: {
               visible: true,
@@ -211,7 +211,7 @@ export default {
             height: 300,
             title: {
               visible: true,
-              text: '部门加班费条形图',
+              text: '各部门加班费支出',
             },
             forceFit: true,
             data: columnData,
@@ -251,7 +251,7 @@ export default {
           height: 300,
           title: {
             visible: true,
-            text: '部门加班时长对比折线图',
+            text: '各部门加班时长折线图',
           },
           description: {
             visible: true,
@@ -484,7 +484,7 @@ export default {
   }
 
   .rank-header {
-    padding-bottom: 10px;
+    padding-bottom: 26px;
     border-bottom: 1px solid #eee;
   }
   .no-data {

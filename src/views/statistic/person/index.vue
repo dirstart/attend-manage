@@ -1,66 +1,62 @@
 <template>
   <div class="depart-wrap">
-    <!-- <el-row style="height: 100%;"> -->
-      <!-- <el-col class="all-height" :xs="10" :sm="10" :md="10" :lg="5"> -->
-
-      <!-- </el-col> -->
-      <!-- <el-col class="all-height" :xs="14" :sm="14" :md="14" :lg="19"> -->
-        <el-card size="small" class="all-height msg-wrap">
-          <div class="all-height">
-            <div class="rank-header">
-              <span>部门排行榜</span>
-              <el-tag style="float:right;" type="primary" size="mini">{{commonTime}}</el-tag>
+    <el-card class="all-height chart-wrap">
+      <div slot="header">
+        <el-row>
+          <el-col :span="6">
+            部门分类统计
+          </el-col>
+          <el-col :span="18">              
+            <el-radio-group class="float-right" v-model="commonTime" size="mini">
+              <el-radio-button v-for="(item, index) in timeInterval"
+                :value="item.value"
+                :label="item.label"
+                :key="index"
+              ></el-radio-button>
+            </el-radio-group>
+            <el-select class="float-right" style="width:110px;margin-top:2px;margin-right: 10px;line-height: 28px;" size="mini" v-model="orgCompare" placeholder="请选择">
+              <el-option @click.native="selectAllOrg" :value="1" label="全部部门"></el-option>
+              <el-option @click.native="selectSomeOrg" :value="2" label="选择部门"></el-option>
+            </el-select>
+            <div class="tag-wrap" v-if="orgCompare === 2">
+              <el-tag
+                class="tag-item"
+                size="small"
+                v-for="(item, index) in selectedOrg"
+                :key="index"
+                closable
+                @close="handleOrgTagClose(index)"
+              >{{item.departName}}</el-tag>
             </div>
-            <div class="rank-body">
-              <div v-if="rankingList.length > 0" class="rank-item" :class="{'rank-first': index === 0, 'rank-second': index === 1, 'rank-third': index === 2}" v-for="(item, index) in rankingList" :key="index">
-                <span class="rank-num">{{(index + 1) < 10 ? '0' + (index + 1) : (index + 1)}}</span>
-                <span class="rank-name">{{item.departName}}</span>
-                <span class="rank-hour">{{item.allOverTime}}h</span>
-              </div>
-              <div class="no-data" v-if="rankingList.length === 0">
-                暂无数据
-              </div>
-            </div>
+          </el-col>
+        </el-row>
+      </div>
+      <!-- 图表 panel -->
+      <div class="chart-panel">
+        <div class="self-chart" id="columnChart"></div>
+        <div class="self-chart" id="pieChart"></div>
+        <div class="self-chart" id="lineChart"></div>
+        <div class="self-chart" id="barChart"></div>
+      </div>
+    </el-card>
+    <el-card size="small" class="all-height msg-wrap">
+      <div class="all-height">
+        <div class="rank-header">
+          <span>部门排行榜</span>
+          <el-tag style="float:right;" type="primary" size="mini">{{commonTime}}</el-tag>
+        </div>
+        <div class="rank-body">
+          <div v-if="rankingList.length > 0" class="rank-item" :class="{'rank-first': index === 0, 'rank-second': index === 1, 'rank-third': index === 2}" v-for="(item, index) in rankingList" :key="index">
+            <span class="rank-num">{{(index + 1) < 10 ? '0' + (index + 1) : (index + 1)}}</span>
+            <span class="rank-name">{{item.departName}}</span>
+            <span class="rank-hour">{{item.allOverTime}}h</span>
           </div>
-        </el-card>
-        <el-card class="all-height chart-wrap">
-          <div slot="header">
-            <el-row>
-              <el-col :span="6">
-                部门分类统计
-              </el-col>
-              <el-col :span="18">              
-                <el-radio-group class="float-right" v-model="commonTime" size="mini">
-                  <el-radio-button v-for="(item, index) in timeInterval"
-                    :value="item.value"
-                    :label="item.label"
-                    :key="index"
-                  ></el-radio-button>
-                </el-radio-group>
-                <el-select class="float-right" style="width:110px;margin-top:2px;margin-right: 10px;line-height: 28px;" size="mini" v-model="orgCompare" placeholder="请选择">
-                  <el-option @click.native="selectAllOrg" :value="1" label="全部部门"></el-option>
-                  <el-option @click.native="selectSomeOrg" :value="2" label="选择部门"></el-option>
-                </el-select>
-                <div class="tag-wrap" v-if="orgCompare === 2">
-                  <el-tag
-                    class="tag-item"
-                    size="small"
-                    v-for="(item, index) in selectedOrg"
-                    :key="index"
-                    closable
-                    @close="handleOrgTagClose(index)"
-                  >{{item.departName}}</el-tag>
-                </div>
-              </el-col>
-            </el-row>
+          <div class="no-data" v-if="rankingList.length === 0">
+            暂无数据
           </div>
-          <div>
-            <div class="chart-group">
-              <echart class="first-pie-chart" ref="firstPieDom" auto-resize :options="firstPieOption"></echart>
-              <echart class="first-line-chart" ref="firstLineDom" auto-resize :options="firstLineOption"></echart>
-            </div>
-          </div>
-        </el-card>
+        </div>
+      </div>
+    </el-card>
     <el-dialog
       title="选择部门"
       top="30vh"
@@ -80,6 +76,7 @@
 </template>
 
 <script>
+import {Column, Pie, Line, Bar} from '@antv/g2plot';
 import {dayToString, rankingSort} from "../common/utils";
 import {timeInterval} from '../common/documents'
 import {getDepartOvertime, getAllPart, getDepartLine} from '@/api/statistic'
@@ -89,7 +86,6 @@ export default {
     await this.getAllPart()
     await this.getDepartOvertime();
     await this.getDepartLine();
-    this.initFirstLineChart()
   },
   data() {
     return {
@@ -102,11 +98,14 @@ export default {
       formOrg: [],
       selectedOrg: [],
       firstLineOption: {},
-      firstPieOption: {},
       // 后端返回数据
       list: [],
-      pieChartData: [],
-      lineData: []
+      lineData: [],
+      // G2Plot
+      columnChart: null,
+      pieChart: null,
+      lineChart: null,
+      barChart: null
     };
   },
   methods: {
@@ -139,116 +138,142 @@ export default {
       this.getDepartLine()
     },
     // 各部门时长占比图
-    initFirstPieChart() {
-      let legendData = [];
-      let seriesData = [];
-      this.firstPieOption = {
-        title: {
-          text: "各部门加班时长占比",
-          textStyle: {
-            fontSize: 14
-          },
-          subText: "纯属虚构",
-          left: '22%'
-        },
-        tooltip: {
-          trigger: "item",
-          formatter: "{b}(部门)<br/> 加班时长{c}小时 - 占比：{d}%"
-          // formatter: "{a} <br/>{b}: {c} ({d}%)"
-        },
-        // toolbox: chartDefault.all.toolBox,
-        legend: Object.assign(chartDefault.pie.legend, {
-          data: this.list.map(item => item.departName),
-          left: '10%',
-          top: '60%',
-          type: 'scroll',
-          orient: 'horizontal'
-        }),
-        series: [
-          {
-            name: "部门",
-            type: "pie",
-            radius: "40%",
-            center: ["40%", "30%"],
-            data: this.list.map(item => {
-              return {
-                name: item.departName,
-                value: item.allOverTime
+    initFirstGroup() {
+      const columnData = this.list.map(item => {
+        return {
+          type: item.departName,
+          value: +item.allOverTime,
+          '支出': +item.cost
+        }
+      })
+      // 加班时长柱形图
+      if (!this.columnChart) {
+        this.columnChart = new Column(
+          document.getElementById('columnChart'), {
+            height: 300,
+            title: {
+              visible: true,
+              text: '各部门加班时长柱形图',
+              style: {
               }
-            }),
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)"
-              }
+            },
+            theme: 'dark',
+            forceFit: true,
+            padding: 'auto',
+            data: columnData,
+            xField: 'type',
+            yField: 'value',
+            colorField: 'type',
+            meta: {
+              type: {
+                alias: '部门名称',
+              },
+              value: {
+                alias: '加班时长（h）',
+              },
+            },
+          }
+        )
+        this.columnChart.render()
+      } else {
+        this.columnChart.changeData(columnData)
+      }
+      // 加班时长饼图
+      if (!this.pieChart) {
+        this.pieChart = new Pie(
+          document.getElementById('pieChart'), {
+            height: 300,
+            forceFit: true,
+            title: {
+              visible: true,
+              text: '各部门加班时长占比',
+            },
+            description: {
+              visible: true,
+              text:
+                '',
+            },
+            radius: 0.8,
+            data: columnData,
+            angleField: 'value',
+            colorField: 'type',
+            label: {
+              visible: true,
+              type: 'inner',
             }
           }
-        ]
-      };
+        )
+        this.pieChart.render()
+      } else {
+        this.pieChart.changeData(columnData)
+      }
+      // 加班费统计条形图
+      if (!this.barChart) {
+        this.barChart = new Bar(
+          document.getElementById('barChart'), {
+            height: 300,
+            title: {
+              visible: true,
+              text: '各部门加班费支出',
+            },
+            forceFit: true,
+            data: columnData,
+            colorField: 'type',
+            xField: '支出',
+            yField: 'type',
+            xAxis: {
+            },
+          }
+        )
+        this.barChart.render()
+      } else {
+        this.barChart.changeData(columnData)
+      }
     },
-    initFirstLineChart() {
-      this.firstLineOption = {
-        title: {
-        text: '折线图堆叠'
-    },
-    tooltip: {
-        trigger: 'axis'
-    },
-    legend: {
-        data: ['邮件营销', '联盟广告', '视频广告', '直接访问', '搜索引擎']
-    },
-    grid: {
-        left: '3%',
-        right: '10%',
-        bottom: '3%',
-        containLabel: true
-    },
-    toolbox: {
-        feature: {
-            saveAsImage: {}
-        }
-    },
-    xAxis: {
-        type: 'category',
-        boundaryGap: false,
-        data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
-    },
-    yAxis: {
-        type: 'value'
-    },
-    series: [
-        {
-            name: '邮件营销',
-            type: 'line',
-            stack: '总量',
-            data: [120, 132, 101, 134, 90, 230, 210]
-        },
-        {
-            name: '联盟广告',
-            type: 'line',
-            stack: '总量',
-            data: [220, 182, 191, 234, 290, 330, 310]
-        },
-        {
-            name: '视频广告',
-            type: 'line',
-            stack: '总量',
-            data: [150, 232, 201, 154, 190, 330, 410]
-        },
-        {
-            name: '直接访问',
-            type: 'line',
-            stack: '总量',
-            data: [320, 332, 301, 334, 390, 330, 320]
-        },
-        {
-            name: '搜索引擎',
-            type: 'line',
-            stack: '总量',
-            data: [820, 932, 901, 934, 1290, 1330, 1320]
-        }
-    ]
+    initSecondGroup () {
+      // 部门间加班多折线图
+      if (!this.lineChart) {
+        const data = [
+          {
+            date: '2020/8/20',
+            type: 'download',
+            value: 4623,
+          },
+          {
+            date: '2018/8/2',
+            type: 'bill',
+            value: 257,
+          },
+          {
+            date: '2018/8/3',
+            type: 'download',
+            value: 508,
+          },
+        ];
+        this.lineChart = new Line(document.getElementById('lineChart'), {
+          height: 300,
+          title: {
+            visible: true,
+            text: '各部门加班时长折线图',
+          },
+          description: {
+            visible: true,
+            text: '将数据按照某一字段进行分组，用于比对不同类型数据的趋势。',
+          },
+          padding: 'auto',
+          forceFit: true,
+          data: this.lineData,
+          xField: 'date',
+          yField: 'value',
+          legend: {
+            position: 'right-top',
+          },
+          seriesField: 'type',
+          responsive: true,
+        });
+        this.lineChart.render()
+      } else {
+        this.lineChart.changeData(this.lineData)
       }
     },
     getAllPart () {
@@ -288,7 +313,7 @@ export default {
         }).then(res => {
           const arr = res.data && res.data.data || []
           this.lineData = this.handleLineData(arr)
-          this.initFirstLineChart()
+          this.initSecondGroup()
           resolve(true)
         })
       })
@@ -310,15 +335,62 @@ export default {
       // xAxis: ['2019-01-01', '2019-01-02']
       // data: [{name: '电商', data: [1, 2]}]
       let tem = []
-      console.log('god', arr)
-      // for (let i = 0; i < arr.length; i++) {
-      //   if (!obj[arr[i].departName]) {
-      //     obj[arr[i].departName] = true
-      //     res.push(tem)
-      //   } else {
-      //     tem.push(arr[i])
-      //   }
-      // 
+      for (let i = 0; i < arr.length; i++) {
+        if (!obj[arr[i].departName]) {
+          tem = []
+          obj[arr[i].departName] = true
+          res.push(tem)
+        } else {
+          tem.push(arr[i])
+        }
+      }
+      // 造数据
+      const oneDay = 1000 * 60 * 60 * 24
+      const nowDate = +new Date()
+      const endTime = dayToString(nowDate)
+
+      if (this.commonTime === '近一周') {
+        for (let j = 0; j < res.length; j++) {
+          // 用于判断数据中是否有这个日期
+          let dateArr = res[j].map(item => item.date)
+          res[j] = res[j].sort((a, b) => {
+            const aValue = +new Date(a.date)
+            const bValue = +new Date(b.date)
+            return aValue - bValue
+          })
+        }
+      } else if (this.commonTime === '近一月') {
+        for (let j = 0; j < res.length; j++) {
+          // 用于判断数据中是否有这个日期
+          let dateArr = res[j].map(item => item.date)
+          res[j] = res[j].sort((a, b) => {
+            const aValue = +new Date(a.date)
+            const bValue = +new Date(b.date)
+            return aValue - bValue
+          })
+        }
+      } else {
+        for (let j = 0; j < res.length; j++) {
+          // 用于判断数据中是否有这个日期
+          let dateArr = res[j].map(item => item.date)
+          res[j] = res[j].sort((a, b) => {
+            const aValue = +new Date(a.date)
+            const bValue = +new Date(b.date)
+            return aValue - bValue
+          })
+        }
+      }
+      let all = []
+      for (let s = 0; s < res.length; s++) {
+        all = all.concat(res[s])
+      }
+      for (let h = 0; h < all.length; h++) {
+        all[h].type = all[h].departName
+        all[h].value = all[h].allOverTime
+        all[h].date = all[h].date
+      }
+      console.log('test', all)
+      return all
     },
     getDepartOvertime () {
       // 一天的值
@@ -349,11 +421,13 @@ export default {
           const arr = res.data && res.data.data || []
           // this.list = arr.concat(arr).concat(arr).concat(arr).concat(arr)
           this.list = arr
-          this.initFirstPieChart()
+          this.initFirstGroup()
           resolve(true)
         })
       })
     }
+  },
+  mounted () {
   },
   computed: {
     rankingList () {
@@ -383,28 +457,37 @@ export default {
 }
 .depart-wrap {
   display: flex;
+  flex-wrap: nowrap;
   height: 100%;
+  min-width: 1200px;
   .msg-wrap {
-    min-height: 300px;
+    flex: 0 0 300px;
+    box-sizing: border-box;
+    min-width: 300px;
   }
   .chart-wrap {
     flex: 1;
-    .chart-group {
+    margin-right: 10px;
+    box-sizing: border-box;
+    .chart-panel {
+      box-sizing: border-box;
       width: 100%;
-      display: flex;
-      .first-pie-chart {
-        // flex: 1;
-        max-width: 400px;
-      }
-      .first-line-chart {
-        flex: 1;
-        // max-width: 400px;
+    };
+    .first-pie-chart {
+      width: 500px;
+      height: 320px;
+    }
+    > .el-card__body {
+      height: calc(100% - 120px);
+      .chart-panel {
+        height: 100%;
+        overflow: scroll;
       }
     }
   }
 
   .rank-header {
-    padding-bottom: 10px;
+    padding-bottom: 26px;
     border-bottom: 1px solid #eee;
   }
   .no-data {
@@ -419,8 +502,9 @@ export default {
     flex-flow: column;
     height: 500px;
     background: #667db6;  /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, #667db6, #0082c8, #0082c8, #667db6);  /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, #667db6, #0082c8, #0082c8, #667db6); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    // background: -webkit-linear-gradient(to right, #DABEE8, #0082c8, #0082c8, #00D6F2);  /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #D9FFA3, #B0CCFF); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(-45deg, #00D6F2 100px, #0482B3 200px);
 
     padding: 10px;
     border-radius: 4px;
@@ -474,8 +558,12 @@ export default {
     }
   }
 
+  .el-card__body {
+    
+  }
+
   .tag-wrap {
-    margin-top: 5px;
+    margin-top: 4px;
     float: right;
     font-size: 12px;
     height: 26px;
@@ -483,16 +571,25 @@ export default {
       margin-right: 5px;
     }
   }
-  .chart-wrap {
-    margin-left: 10px;
-    height: 100%;
-  }
   .moni-tag {
     color: #089e8a;
     float: right;
     font-size: 12px;
     line-height: 18px;
     text-shadow: 0 0 3px #eee;
+  }
+
+  // #columnChart,
+  // #pieChart {
+  // }
+  .self-chart {
+    margin-bottom: 5px;
+    // background: #eee;
+    // background: #089e8a;
+    background: #089e8a;
+    box-sizing: border-box;
+    display: inline-block;
+    width: 48%;
   }
 }
 </style>
