@@ -8,7 +8,6 @@ import './styles/element-variables.scss';
 import App from './App'
 import router from './router'
 import store from './store'
-import G2 from '@antv/g2'
 
 import './icons' // icon
 import './errorLog' // error log
@@ -23,7 +22,6 @@ Vue.component('city-picker', CityPicker);
 Vue.component('date-picker', DatePicker);
 Vue.component('echart', Echart)
 
-Vue.use(G2)
 Vue.use(Permission);
 Vue.use(Element, {
   size: 'medium' // set element-ui default size

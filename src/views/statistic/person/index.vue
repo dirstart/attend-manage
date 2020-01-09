@@ -81,7 +81,6 @@
 
 <script>
 import {dayToString, rankingSort} from "../common/utils";
-import chartDefault from "../common/chartDefault";
 import {timeInterval} from '../common/documents'
 import {getDepartOvertime, getAllPart, getDepartLine} from '@/api/statistic'
 export default {
@@ -372,7 +371,7 @@ export default {
 };
 </script>
 
-<style lang='less' scoped>
+<style lang='scss' scoped>
 .all-height {
   height: 100%;
 }

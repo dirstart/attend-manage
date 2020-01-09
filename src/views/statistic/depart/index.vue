@@ -32,14 +32,10 @@
         </el-row>
       </div>
       <!-- 图表 panel -->
-      <div class="chart-pannel">
-        <div class="chart-group">
-          <!-- <echart class="first-pie-chart" ref="firstPieDom" auto-resize :options="firstPieOption"></echart> -->
-          <!-- <div style="height: 100px;">
-            <echart class="first-line-chart" ref="firstLineDom" auto-resize :options="firstLineOption"></echart>
-          </div> -->
-          <!-- <div id="test"></div> -->
-        </div>
+      <div class="chart-panel">
+        <div class="self-chart" id="columnChart"></div>
+        <div class="self-chart" id="pieChart"></div>
+        <div class="self-chart" id="lineChart"></div>
       </div>
     </el-card>
     <el-card size="small" class="all-height msg-wrap">
@@ -79,8 +75,8 @@
 </template>
 
 <script>
+import {Column, Pie, Line} from '@antv/g2plot';
 import {dayToString, rankingSort} from "../common/utils";
-import chartDefault from "../common/chartDefault";
 import {timeInterval} from '../common/documents'
 import {getDepartOvertime, getAllPart, getDepartLine} from '@/api/statistic'
 export default {
@@ -89,7 +85,6 @@ export default {
     await this.getAllPart()
     await this.getDepartOvertime();
     await this.getDepartLine();
-    this.initFirstLineChart()
   },
   data() {
     return {
@@ -102,20 +97,13 @@ export default {
       formOrg: [],
       selectedOrg: [],
       firstLineOption: {},
-      firstPieOption: {},
       // 后端返回数据
       list: [],
-      pieChartData: [],
       lineData: [],
-      // test
-      chart: null,
-       data: [
-        { genre: "Sports", sold: 275 },
-        { genre: "Strategy", sold: 115 },
-        { genre: "Action", sold: 120 },
-        { genre: "Shooter", sold: 350 },
-        { genre: "Other", sold: 150 }
-      ]
+      // G2Plot
+      columnChart: null,
+      pieChart: null,
+      lineChart: null
     };
   },
   methods: {
@@ -148,110 +136,136 @@ export default {
       this.getDepartLine()
     },
     // 各部门时长占比图
-    initFirstPieChart() {
-      let legendData = [];
-      let seriesData = [];
-      this.firstPieOption = {
-        title: {
-          text: "各部门加班时长占比",
-          textStyle: {
-            fontSize: 14
-          },
-          subText: "纯属虚构",
-          left: '22%'
-        },
-        tooltip: {
-          trigger: "item",
-          formatter: "{b}(部门)<br/> 加班时长{c}小时 - 占比：{d}%"
-          // formatter: "{a} <br/>{b}: {c} ({d}%)"
-        },
-        // toolbox: chartDefault.all.toolBox,
-        legend: Object.assign(chartDefault.pie.legend, {
-          data: this.list.map(item => item.departName),
-          left: '10%',
-          top: '60%',
-          type: 'scroll',
-          orient: 'horizontal'
-        }),
-        series: [
-          {
-            name: "部门",
-            type: "pie",
-            radius: "40%",
-            center: ["40%", "30%"],
-            color: ['#00D6F2', '#36F0F2', '#1EA8D1', '#0482B3', '#1C6C80'],
-            data: this.list.map(item => {
-              return {
-                name: item.departName,
-                value: item.allOverTime
-              }
-            }),
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)"
-              }
-            }
-          }
-        ]
-      };
-    },
-    initFirstLineChart() {
-      if (!this.lineData.length) {
-        return
-      }
-      let legendData = this.lineData.map(item => item[0].departName)
-      let xAxisData = this.lineData[0].map(item => item.date)
-      let seriesData = this.lineData.map((item, index) => {
+    initFirstGroup() {
+      const columnData = this.list.map(item => {
         return {
-          name: item[0].departName,
-          type: 'line',
-          stack: '加班时长',
-          data: item.map(inner => +inner.allOverTime),
-          color: ['#00D6F2', '#36F0F2', '#1EA8D1', '#0482B3', '#1C6C80'][index]
+          type: item.departName,
+          value: +item.allOverTime
         }
       })
-
-      this.firstLineOption = {
-        title: {
-          text: '部门加班曲线图',
-          textStyle: {
-            fontSize: 14
-          },
-          subText: "纯属虚构"
-        },
-        tooltip: {
-          trigger: 'axis'
-        },
-        legend: {
-          left: 'right',
-          top: 'center',
-          orient: 'vertical',
-          data: legendData
-        },
-        grid: {
-          left: '3%',
-          right: '10%',
-          top: 'top',
-          containLabel: true
-        },
-        toolbox: {
-            feature: {
-              saveAsImage: {}
+      // 加班时长柱形图
+      if (!this.columnChart) {
+        this.columnChart = new Column(
+          document.getElementById('columnChart'), {
+            height: 300,
+            forceFit: true,
+            title: {
+              visible: true,
+              text: '部门间加班时长',
+            },
+            forceFit: true,
+            padding: 'auto',
+            data: columnData,
+            xField: 'type',
+            yField: 'value',
+            colorField: 'type',
+            meta: {
+              type: {
+                alias: '部门名称',
+              },
+              value: {
+                alias: '加班时长（h）',
+              },
+            },
+          }
+        )
+        this.columnChart.render()
+      } else {
+        this.columnChart.changeData(columnData)
+      }
+      // 加班时长饼图
+      if (!this.pieChart) {
+        this.pieChart = new Pie(
+          document.getElementById('pieChart'), {
+            height: 300,
+            forceFit: true,
+            title: {
+              visible: true,
+              text: '部门间加班时长占比',
+            },
+            description: {
+              visible: true,
+              text:
+                '',
+            },
+            radius: 0.8,
+            data: columnData,
+            angleField: 'value',
+            colorField: 'type',
+            label: {
+              visible: true,
+              type: 'inner',
             }
-        },
-        xAxis: {
-            type: 'category',
-            boundaryGap: false,
-            data: xAxisData
-        },
-        yAxis: {
-          type: 'value'
-        },
-        series: seriesData
+          }
+        )
+        this.pieChart.render()
+      } else {
+        this.pieChart.changeData(columnData)
       }
     },
+    initSecondGroup () {
+      // 部门间加班多折线图
+      if (!this.lineChart) {
+
+      } else {
+        // this.lineChart
+      }
+    },
+    // initSecondGroup() {
+    //   if (!this.lineData.length) {
+    //     return
+    //   }
+    //   let legendData = this.lineData.map(item => item[0].departName)
+    //   let xAxisData = this.lineData[0].map(item => item.date)
+    //   let seriesData = this.lineData.map((item, index) => {
+    //     return {
+    //       name: item[0].departName,
+    //       type: 'line',
+    //       stack: '加班时长',
+    //       data: item.map(inner => +inner.allOverTime),
+    //       color: ['#00D6F2', '#36F0F2', '#1EA8D1', '#0482B3', '#1C6C80'][index]
+    //     }
+    //   })
+
+    //   this.firstLineOption = {
+    //     title: {
+    //       text: '部门加班曲线图',
+    //       textStyle: {
+    //         fontSize: 14
+    //       },
+    //       subText: "纯属虚构"
+    //     },
+    //     tooltip: {
+    //       trigger: 'axis'
+    //     },
+    //     legend: {
+    //       left: 'right',
+    //       top: 'center',
+    //       orient: 'vertical',
+    //       data: legendData
+    //     },
+    //     grid: {
+    //       left: '3%',
+    //       right: '10%',
+    //       top: 'top',
+    //       containLabel: true
+    //     },
+    //     toolbox: {
+    //         feature: {
+    //           saveAsImage: {}
+    //         }
+    //     },
+    //     xAxis: {
+    //         type: 'category',
+    //         boundaryGap: false,
+    //         data: xAxisData
+    //     },
+    //     yAxis: {
+    //       type: 'value'
+    //     },
+    //     series: seriesData
+    //   }
+    // },
     getAllPart () {
       return new Promise((resolve, reject) => {
         getAllPart().then(res => {
@@ -289,7 +303,7 @@ export default {
         }).then(res => {
           const arr = res.data && res.data.data || []
           this.lineData = this.handleLineData(arr)
-          this.initFirstLineChart()
+          this.initSecondGroup()
           resolve(true)
         })
       })
@@ -437,24 +451,13 @@ export default {
           const arr = res.data && res.data.data || []
           // this.list = arr.concat(arr).concat(arr).concat(arr).concat(arr)
           this.list = arr
-          this.initFirstPieChart()
+          this.initFirstGroup()
           resolve(true)
         })
       })
     }
   },
   mounted () {
-    const chart = new G2.Chart({
-      container: "test",
-      width: 600,
-      height: 300
-    })
-    chart.source(this.data)
-    chart.interval()
-      .position("genre*sold")
-      .color('genre')
-    this.chart = chart
-    this.chart.render()
   },
   computed: {
     rankingList () {
@@ -484,21 +487,32 @@ export default {
 }
 .depart-wrap {
   display: flex;
+  flex-wrap: nowrap;
   height: 100%;
-  min-width: 900px;
+  min-width: 1200px;
   .msg-wrap {
-    min-height: 300px;
+    flex: 0 0 300px;
+    box-sizing: border-box;
+    min-width: 300px;
   }
   .chart-wrap {
-    margin-right: 10px;
     flex: 1;
+    margin-right: 10px;
+    box-sizing: border-box;
     .chart-panel {
-      display: block;
-      height: 100%;
+      box-sizing: border-box;
+      width: 100%;
     };
     .first-pie-chart {
       width: 500px;
       height: 320px;
+    }
+    > .el-card__body {
+      height: calc(100% - 120px);
+      .chart-panel {
+        height: 100%;
+        overflow: scroll;
+      }
     }
   }
 
@@ -574,6 +588,10 @@ export default {
     }
   }
 
+  .el-card__body {
+    
+  }
+
   .tag-wrap {
     margin-top: 4px;
     float: right;
@@ -589,6 +607,16 @@ export default {
     font-size: 12px;
     line-height: 18px;
     text-shadow: 0 0 3px #eee;
+  }
+
+  // #columnChart,
+  // #pieChart {
+  // }
+  .self-chart {
+    background: #eee;
+    box-sizing: border-box;
+    display: inline-block;
+    width: 48%;
   }
 }
 </style>

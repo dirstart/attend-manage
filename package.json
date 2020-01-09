@@ -12,7 +12,7 @@
     "build": "cross-env NODE_ENV=production node build/build.js"
   },
   "dependencies": {
-    "@antv/g2": "^3.5.11",
+    "@antv/g2plot": "^0.11.21",
     "axios": "0.17.1",
     "canvas-nest.js": "^2.0.4",
     "clipboard": "1.7.1",
