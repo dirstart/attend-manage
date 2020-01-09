@@ -36,6 +36,7 @@
         <div class="self-chart" id="columnChart"></div>
         <div class="self-chart" id="pieChart"></div>
         <div class="self-chart" id="lineChart"></div>
+        <div class="self-chart" id="barChart"></div>
       </div>
     </el-card>
     <el-card size="small" class="all-height msg-wrap">
@@ -75,7 +76,7 @@
 </template>
 
 <script>
-import {Column, Pie, Line} from '@antv/g2plot';
+import {Column, Pie, Line, Bar} from '@antv/g2plot';
 import {dayToString, rankingSort} from "../common/utils";
 import {timeInterval} from '../common/documents'
 import {getDepartOvertime, getAllPart, getDepartLine} from '@/api/statistic'
@@ -103,7 +104,8 @@ export default {
       // G2Plot
       columnChart: null,
       pieChart: null,
-      lineChart: null
+      lineChart: null,
+      barChart: null
     };
   },
   methods: {
@@ -140,7 +142,8 @@ export default {
       const columnData = this.list.map(item => {
         return {
           type: item.departName,
-          value: +item.allOverTime
+          value: +item.allOverTime,
+          '支出': +item.cost
         }
       })
       // 加班时长柱形图
@@ -148,7 +151,6 @@ export default {
         this.columnChart = new Column(
           document.getElementById('columnChart'), {
             height: 300,
-            forceFit: true,
             title: {
               visible: true,
               text: '部门间加班时长',
@@ -202,70 +204,75 @@ export default {
       } else {
         this.pieChart.changeData(columnData)
       }
+      // 加班费统计条形图
+      if (!this.barChart) {
+        this.barChart = new Bar(
+          document.getElementById('barChart'), {
+            height: 300,
+            title: {
+              visible: true,
+              text: '部门加班费条形图',
+            },
+            forceFit: true,
+            data: columnData,
+            colorField: 'type',
+            xField: '支出',
+            yField: 'type',
+            xAxis: {
+            },
+          }
+        )
+        this.barChart.render()
+      } else {
+        this.barChart.changeData(columnData)
+      }
     },
     initSecondGroup () {
       // 部门间加班多折线图
       if (!this.lineChart) {
-
+        const data = [
+          {
+            date: '2020/8/20',
+            type: 'download',
+            value: 4623,
+          },
+          {
+            date: '2018/8/2',
+            type: 'bill',
+            value: 257,
+          },
+          {
+            date: '2018/8/3',
+            type: 'download',
+            value: 508,
+          },
+        ];
+        this.lineChart = new Line(document.getElementById('lineChart'), {
+          height: 300,
+          title: {
+            visible: true,
+            text: '部门加班时长对比折线图',
+          },
+          description: {
+            visible: true,
+            text: '将数据按照某一字段进行分组，用于比对不同类型数据的趋势。',
+          },
+          padding: 'auto',
+          forceFit: true,
+          data: this.lineData,
+          xField: 'date',
+          yField: 'value',
+          legend: {
+            position: 'right-top',
+          },
+          seriesField: 'type',
+          responsive: true,
+        });
+        this.lineChart.render()
       } else {
-        // this.lineChart
+        this.lineChart.changeData(this.lineData)
       }
     },
-    // initSecondGroup() {
-    //   if (!this.lineData.length) {
-    //     return
-    //   }
-    //   let legendData = this.lineData.map(item => item[0].departName)
-    //   let xAxisData = this.lineData[0].map(item => item.date)
-    //   let seriesData = this.lineData.map((item, index) => {
-    //     return {
-    //       name: item[0].departName,
-    //       type: 'line',
-    //       stack: '加班时长',
-    //       data: item.map(inner => +inner.allOverTime),
-    //       color: ['#00D6F2', '#36F0F2', '#1EA8D1', '#0482B3', '#1C6C80'][index]
-    //     }
-    //   })
-
-    //   this.firstLineOption = {
-    //     title: {
-    //       text: '部门加班曲线图',
-    //       textStyle: {
-    //         fontSize: 14
-    //       },
-    //       subText: "纯属虚构"
-    //     },
-    //     tooltip: {
-    //       trigger: 'axis'
-    //     },
-    //     legend: {
-    //       left: 'right',
-    //       top: 'center',
-    //       orient: 'vertical',
-    //       data: legendData
-    //     },
-    //     grid: {
-    //       left: '3%',
-    //       right: '10%',
-    //       top: 'top',
-    //       containLabel: true
-    //     },
-    //     toolbox: {
-    //         feature: {
-    //           saveAsImage: {}
-    //         }
-    //     },
-    //     xAxis: {
-    //         type: 'category',
-    //         boundaryGap: false,
-    //         data: xAxisData
-    //     },
-    //     yAxis: {
-    //       type: 'value'
-    //     },
-    //     series: seriesData
-    //   }
-    // },
     getAllPart () {
       return new Promise((resolve, reject) => {
         getAllPart().then(res => {
@@ -339,27 +346,10 @@ export default {
       const nowDate = +new Date()
       const endTime = dayToString(nowDate)
 
-      let startTime
       if (this.commonTime === '近一周') {
         for (let j = 0; j < res.length; j++) {
-          startTime = dayToString(nowDate - 7 * oneDay)
-          // 用来复制数据
-          const copyItem = res[j] && res[j][0] || {}
           // 用于判断数据中是否有这个日期
           let dateArr = res[j].map(item => item.date)
-          console.log('dateARr', dateArr)
-          for (let k = 0; k < 7; k++) {
-            if (!dateArr.includes(startTime)) {
-              res[j].push({
-                departNo: copyItem.departNo,
-                departName: copyItem.departName,
-                allOverTime: 0,
-                date: startTime,
-                cost: 0
-              })
-            }
-            startTime = dayToString(+new Date(+new Date(startTime) + oneDay))
-          }
           res[j] = res[j].sort((a, b) => {
             const aValue = +new Date(a.date)
             const bValue = +new Date(b.date)
@@ -368,24 +358,8 @@ export default {
         }
       } else if (this.commonTime === '近一月') {
         for (let j = 0; j < res.length; j++) {
-          startTime = dayToString(nowDate - 30 * oneDay)
-          // 用来复制数据
-          const copyItem = res[j] && res[j][0] || {}
           // 用于判断数据中是否有这个日期
           let dateArr = res[j].map(item => item.date)
-          console.log('dateARr', dateArr)
-          for (let k = 0; k < 30; k++) {
-            if (!dateArr.includes(startTime)) {
-              res[j].push({
-                departNo: copyItem.departNo,
-                departName: copyItem.departName,
-                allOverTime: 0,
-                date: startTime,
-                cost: 0
-              })
-            }
-            startTime = dayToString(+new Date(+new Date(startTime) + oneDay))
-          }
           res[j] = res[j].sort((a, b) => {
             const aValue = +new Date(a.date)
             const bValue = +new Date(b.date)
@@ -394,24 +368,8 @@ export default {
         }
       } else {
         for (let j = 0; j < res.length; j++) {
-          startTime = dayToString(nowDate - 365 * oneDay)
-          // 用来复制数据
-          const copyItem = res[j] && res[j][0] || {}
           // 用于判断数据中是否有这个日期
           let dateArr = res[j].map(item => item.date)
-          console.log('dateARr', dateArr)
-          for (let k = 0; k < 365; k++) {
-            if (!dateArr.includes(startTime)) {
-              res[j].push({
-                departNo: copyItem.departNo,
-                departName: copyItem.departName,
-                allOverTime: 0,
-                date: startTime,
-                cost: 0
-              })
-            }
-            startTime = dayToString(+new Date(+new Date(startTime) + oneDay))
-          }
           res[j] = res[j].sort((a, b) => {
             const aValue = +new Date(a.date)
             const bValue = +new Date(b.date)
@@ -419,8 +377,17 @@ export default {
           })
         }
       }
-      
-      return res
+      let all = []
+      for (let s = 0; s < res.length; s++) {
+        all = all.concat(res[s])
+      }
+      for (let h = 0; h < all.length; h++) {
+        all[h].type = all[h].departName
+        all[h].value = all[h].allOverTime
+        all[h].date = all[h].date
+      }
+      console.log('test', all)
+      return all
     },
     getDepartOvertime () {
       // 一天的值
@@ -613,6 +580,7 @@ export default {
   // #pieChart {
   // }
   .self-chart {
+    margin-bottom: 5px;
     background: #eee;
     box-sizing: border-box;
     display: inline-block;
