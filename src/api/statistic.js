@@ -44,3 +44,12 @@ export function getPersonOvertime (data) {
     data: data || {}
   })
 }
+
+// 获取部门内人员折线图
+export function getPersonLine (data) {
+  return request({
+    url: '/overtime/detail',
+    method: 'post',
+    data: data || {}
+  })
+}

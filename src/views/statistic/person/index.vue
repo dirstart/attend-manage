@@ -33,6 +33,7 @@
       <div class="chart-panel">
         <div class="self-chart" id="columnChart"></div>
         <div class="self-chart" id="pieChart"></div>
+        <div class="self-chart" id="lineChart"></div>
         <!-- <div class="self-chart" id="columnChart"></div>
         <div class="self-chart" id="pieChart"></div>
         <div class="self-chart" id="lineChart"></div>
@@ -64,7 +65,7 @@
 import {Column, Pie, Line, Bar} from '@antv/g2plot';
 import {dayToString, rankingSort} from "../common/utils";
 import {timeInterval} from '../common/documents'
-import {getAllPart, getDepartLine, getPersonByPart, getPersonOvertime} from '@/api/statistic'
+import {getAllPart, getPersonByPart, getPersonOvertime, getPersonLine} from '@/api/statistic'
 export default {
   name: 'depart',
   async created() {
@@ -72,6 +73,7 @@ export default {
     // 获取当前部门的人员id
     await this.getPersonByPart()
     await this.getValueByPerson()
+    await this.getPersonLine()
   },
   data() {
     return {
@@ -102,6 +104,7 @@ export default {
       // 获取当前部门的人员id
       await this.getPersonByPart()
       await this.getValueByPerson()
+      await this.getPersonLine()
     },
     getPersonByPart () {
       return new Promise((resolve, reject) => {
@@ -149,11 +152,37 @@ export default {
         })
       })
     },
+    getPersonLine () {
+      // 一天的值
+      const oneDay = 1000 * 60 * 60 * 24
+      const nowDate = +new Date()
+      const endTime = dayToString(nowDate)
+      let startTime
+      if (this.commonTime === '近一周') {
+        startTime = dayToString(nowDate - 7 * oneDay)
+      } else if (this.commonTime === '近一月') {
+        startTime = dayToString(nowDate - 30 * oneDay)
+      } else {
+        startTime = dayToString(nowDate - 90 * oneDay)
+      }
+      return new Promise((resolve, reject) => {
+        const noGroup = this.personList.map(item => item.staffNo)
+        getPersonLine({
+          startTime,
+          endTime,
+          noGroup
+        }).then(res => {
+          this.lineData = res.data.data || []
+          this.initLineData()
+          resolve(true)
+        })
+      })
+    },
     initPieData() {
       const pieData = this.pieData
-      let totalValue = 0
+      this.totalValue = 0
       for (let i = 0; i < this.pieData.length; i++) {
-        totalValue += +this.pieData[i].allOverTime
+        this.totalValue += +this.pieData[i].allOverTime
       }
       // 加班时长柱状图
       if (!this.columnChart) {
@@ -210,19 +239,50 @@ export default {
               visible: true,
               type: 'inner',
               formatter: (value, all, test) => {
-                return `${(value / totalValue * 100).toFixed(2)}%`
+                console.log('test', this.totalValue)
+                return `${(value / this.totalValue * 100).toFixed(2)}%`
               }
             },
             tooltip: {
               visible: true,
             },
-            events: {
-            }
           }
         )
         this.pieChart.render()
       } else {
         this.pieChart.changeData(pieData)
+      }
+    },
+    initLineData () {
+      if (!this.lineChart) {
+        this.lineChart = new Line(document.getElementById('lineChart'), {
+          height: 270,
+          title: {
+            visible: true,
+            text: '各部门加班时长折线图',
+          },
+          description: {
+            visible: true,
+            text: '将数据按照某一字段进行分组，用于比对不同类型数据的趋势。',
+          },
+          label: {
+            // visible: true,
+            type: 'point'
+          },
+          padding: 'auto',
+          forceFit: true,
+          data: this.lineData,
+          xField: 'date',
+          yField: 'overtime',
+          legend: {
+            position: 'right-top',
+          },
+          seriesField: 'name',
+          responsive: true,
+        });
+        this.lineChart.render()
+      } else {
+        this.lineChart.changeData(this.lineData)
       }
     },
     getAllPart () {
@@ -246,6 +306,7 @@ export default {
       // 获取当前部门的人员id
       await this.getPersonByPart()
       await this.getValueByPerson()
+      await this.getPersonLine()
     } 
   }
 };

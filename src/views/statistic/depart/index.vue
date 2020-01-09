@@ -139,16 +139,16 @@ export default {
     },
     // 各部门时长占比图
     initFirstGroup() {
-      let totalValue = 0
+      this.totalValue = 0
       for (let i = 0; i < this.list.length; i++) {
-        totalValue += +this.list[i].allOverTime
+        this.totalValue += +this.list[i].allOverTime
       }
       const columnData = this.list.map(item => {
         return {
           type: item.departName,
           value: +item.allOverTime,
           '支出': +item.cost,
-          rate: (+item.allOverTime / totalValue).toFixed(4) * 100
+          rate: (+item.allOverTime / this.totalValue).toFixed(4) * 100
         }
       })
       // 加班时长柱形图
@@ -193,7 +193,7 @@ export default {
             description: {
               visible: true,
               text:
-                '',
+                '单位(h)',
             },
             radius: 0.8,
             data: columnData,
@@ -202,7 +202,10 @@ export default {
             label: {
               visible: true,
               type: 'inner',
-              // type: 'spider',
+              formatter: (value, all, test) => {
+                console.log('test', this.totalValue)
+                return `${(value / this.totalValue * 100).toFixed(2)}%`
+              }
             },
             tooltip: {
               visible: true,
@@ -227,7 +230,7 @@ export default {
               text: '各部门加班费支出',
             },
             forceFit: true,
-            data: columnData,
+            data: columnData || [],
             colorField: 'type',
             xField: '支出',
             yField: 'type',
@@ -433,7 +436,6 @@ export default {
           departNos
         }).then(res => {
           const arr = res.data && res.data.data || []
-          // this.list = arr.concat(arr).concat(arr).concat(arr).concat(arr)
           this.list = arr
           this.initFirstGroup()
           resolve(true)
