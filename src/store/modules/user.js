@@ -1,18 +1,16 @@
-import { Message } from 'element-ui'
-import { getAllMenu } from '@/api/common'
-import { postUserLogin, getUserInfo } from '@/api/login'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getEmployee } from '@/api/homepage'
+import { getToken, setToken, removeToken, getUser, setUser, removeUser } from '@/utils/auth'
 
 const user = {
   state: {
-    userInfo: null,
+    userInfo: getUser(),
     permissionMenus: {
       children: [{
         name: '一级菜单',
         path: '',
         children: [{
           name: '首页',
-          icon: 'exportRecord',
+          icon: 'table',
           path: '/homepage'
         }, {
           name: '个人统计',
@@ -35,6 +33,7 @@ const user = {
     },
     SET_USERINFO: (state, userInfo) => {
       state.userInfo = userInfo
+      setUser(userInfo);
     },
     SET_PERMISSION_MENUS: (state, permissionMenus) => {
       state.permissionMenus = permissionMenus
@@ -55,17 +54,20 @@ const user = {
     // 用户名登录
     login({ commit }, userInfo) {
       return new Promise((resolve, reject) => {
-        postUserLogin(userInfo).then(res => {
-          if (res.status !== 200) {
-            Message({
-              message: '账户或密码错误！',
-              type: 'warning'
-            })
-            reject(res.data);
-            return;
+        getEmployee().then(res => {
+          const { code, data } = res.data;
+          if (code === 200) {
+            let result = data.find(item => {
+              if (item.staffNo == userInfo.loginName) {
+                commit('SET_TOKEN', 'QEDFEGS=1278FS=FDSFGWA');
+                commit('SET_USERINFO', item);
+                resolve();
+              }
+            });
+            if (!result) reject('用户名或密码错误，请重新输入！');
+          } else {
+            reject('接口报错，请联系管理员！');
           }
-          commit('SET_TOKEN', res.data.token)
-          resolve()
         }).catch(error => {
           reject(error)
         })
@@ -74,31 +76,18 @@ const user = {
     logOut({ commit }) {
       return new Promise((resolve) => {
         removeToken();
+        removeUser();
         commit('DELETE_USERINFO');
         commit('DELETE_PERMISSION_MENUS');
         resolve();
       });
     },
     getUserInfo({ commit }) {
-      return new Promise((resolve, reject) => {
-        getAllMenu().then(res => {
-          commit('SET_PERMISSION_MENUS', res.data);
-        });
-        getUserInfo().then(res => {
-          if (res.status !== 200) {
-            reject(res.data);
-            return;
-          }
-          commit('SET_USERINFO', res.data);
-          resolve(res.data);
-        }).catch(error => {
-          reject(error);
-        });
+      return new Promise((resolve) => {
+        commit('SET_PERMISSION_MENUS', res.data);
+        resolve();
       })
-    },
-    async getTokenRefresh({ commit }, state) {
-      commit('SET_TOKEN', state);
-    },
+    }
   },
 }
 

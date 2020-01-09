@@ -8,10 +8,10 @@
         <el-dropdown @command="onCommand" class="user">
           <div class="el-dropdown-link">
             <div class="box">
-              <b>{{userInfo ? (userInfo.loginName ? userInfo.loginName : '-') : '-'}}
+              <b>{{userInfo ? (userInfo.staffNo ? userInfo.staffNo : '-') : '-'}}
                 <i class="el-icon-caret-bottom"></i>
               </b>
-              <p>{{userInfo ? (userInfo.name ? userInfo.name : '-') : '-'}}</p>
+              <p>{{userInfo ? (userInfo.staffName ? userInfo.staffName : '-') : '-'}}</p>
             </div>
           </div>
           <el-dropdown-menu slot="dropdown" class="header-dropdown-menu">

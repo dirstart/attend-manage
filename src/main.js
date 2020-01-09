@@ -35,9 +35,8 @@ Object.keys(filters).forEach(key => {
 
 Vue.config.productionTip = false;
 
-// 自定义localstorage
+// 自定义localStorage
 import AiStore from '@/utils/store';
-Vue['AiStore'] = AiStore;
 Vue.prototype['AiStore'] = AiStore;
 
 

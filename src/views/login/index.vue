@@ -62,6 +62,8 @@ export default {
         this.loginForm.loginName = this.loginForm.loginName.trim();
         this.$store.dispatch("login", this.loginForm).then(() => {
           this.$router.push("/");
+        }).catch(err => {
+          this.$message.error(err);
         });
       });
     },

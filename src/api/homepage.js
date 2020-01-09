@@ -1,14 +1,35 @@
-export function getData() {
+import request from '@/utils/request';
+import qs from 'qs';
+
+
+export function fetchAttendData(data) {
   return request({
-    url: '/api/get/test',
+    url: '/overtime/list',
+    method: 'post',
+    data
+  });
+}
+
+export function fetchDetailData(data) {
+  return request({
+    url: '/overtime/detail',
+    method: 'post',
+    data
+  });
+}
+
+// 获取所有部门
+export function getDepartment() {
+  return request({
+    url: '/depart',
     method: 'get'
   });
 }
 
-export function postData(data) {
+// 获取所有员工
+export function getEmployee() {
   return request({
-    url: '/api/post/test',
-    method: 'post',
-    data
+    url: '/staff',
+    method: 'get'
   });
 }

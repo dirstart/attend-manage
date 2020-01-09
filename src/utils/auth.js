@@ -9,8 +9,8 @@ export function getToken() {
 }
 
 export function setToken(token) {
-  // 设置不过期
-  return AiStore.set(TokenKey, token);
+  // 设置4个小时过期
+  return AiStore.set(TokenKey, token, 14400);
 }
 
 export function removeToken() {
