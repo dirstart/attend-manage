@@ -19,20 +19,28 @@ export function getDepartLine (data) {
   })
 }
 
-// 获取人员统计
-export function getPersonOvertime (data) {
-  return request({
-    url: '/overtime/staff/list',
-    method: 'post',
-    data: data || {}
-  })
-}
-
 // 获取全部部门
 export function getAllPart(params){
   return request({
     url:'/depart',
     method:'get',
     params
+  })
+}
+
+// 获取部门里有哪些人员
+export function getPersonByPart (pardId) {
+  return request({
+    url: '/staff/' + pardId,
+    method: 'get'
+  })
+}
+
+// 获取人员统计
+export function getPersonOvertime (data) {
+  return request({
+    url: '/overtime/staff/list',
+    method: 'post',
+    data: data || {}
   })
 }

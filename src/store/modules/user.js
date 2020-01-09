@@ -13,7 +13,7 @@ const user = {
           icon: 'table',
           path: '/homepage'
         }, {
-          name: '个人统计',
+          name: '人员统计',
           icon: '',
           path: '/person'
         }, {

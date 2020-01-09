@@ -139,18 +139,23 @@ export default {
     },
     // 各部门时长占比图
     initFirstGroup() {
+      let totalValue = 0
+      for (let i = 0; i < this.list.length; i++) {
+        totalValue += +this.list[i].allOverTime
+      }
       const columnData = this.list.map(item => {
         return {
           type: item.departName,
           value: +item.allOverTime,
-          '支出': +item.cost
+          '支出': +item.cost,
+          rate: (+item.allOverTime / totalValue).toFixed(4) * 100
         }
       })
       // 加班时长柱形图
       if (!this.columnChart) {
         this.columnChart = new Column(
           document.getElementById('columnChart'), {
-            height: 300,
+            height: 270,
             title: {
               visible: true,
               text: '各部门加班时长柱形图',
@@ -179,7 +184,7 @@ export default {
       if (!this.pieChart) {
         this.pieChart = new Pie(
           document.getElementById('pieChart'), {
-            height: 300,
+            height: 270,
             forceFit: true,
             title: {
               visible: true,
@@ -192,11 +197,19 @@ export default {
             },
             radius: 0.8,
             data: columnData,
-            angleField: 'value',
+            angleField: 'rate',
             colorField: 'type',
             label: {
               visible: true,
               type: 'inner',
+              // type: 'spider',
+            },
+            tooltip: {
+              visible: true,
+              // htmlContent: (title, items) => {
+              //   console.log('test', title, items)
+              //   return '<div>1</div>'
+              // }
             }
           }
         )
@@ -208,7 +221,7 @@ export default {
       if (!this.barChart) {
         this.barChart = new Bar(
           document.getElementById('barChart'), {
-            height: 300,
+            height: 270,
             title: {
               visible: true,
               text: '各部门加班费支出',
@@ -248,7 +261,7 @@ export default {
           },
         ];
         this.lineChart = new Line(document.getElementById('lineChart'), {
-          height: 300,
+          height: 270,
           title: {
             visible: true,
             text: '各部门加班时长折线图',
@@ -256,6 +269,10 @@ export default {
           description: {
             visible: true,
             text: '将数据按照某一字段进行分组，用于比对不同类型数据的趋势。',
+          },
+          label: {
+            // visible: true,
+            type: 'point'
           },
           padding: 'auto',
           forceFit: true,
@@ -293,7 +310,7 @@ export default {
       } else if (this.commonTime === '近一月') {
         startTime = dayToString(nowDate - 30 * oneDay)
       } else {
-        startTime = dayToString(nowDate - 365 * oneDay)
+        startTime = dayToString(nowDate - 90 * oneDay)
       }
       // 所有部门
       if (this.orgCompare === 1) {
@@ -401,7 +418,7 @@ export default {
       } else if (this.commonTime === '近一月') {
         startTime = dayToString(nowDate - 30 * oneDay)
       } else {
-        startTime = dayToString(nowDate - 365 * oneDay)
+        startTime = dayToString(nowDate - 90 * oneDay)
       }
       // 所有部门
       if (this.orgCompare === 1) {
@@ -442,7 +459,7 @@ export default {
 };
 </script>
 
-<style lang='scss'>
+<style lang='scss' scoped>
 .all-height {
   height: 100%;
 }
@@ -456,7 +473,7 @@ export default {
   display: flex;
   flex-wrap: nowrap;
   height: 100%;
-  min-width: 1200px;
+  min-width: 1000px;
   .msg-wrap {
     flex: 0 0 300px;
     box-sizing: border-box;
@@ -475,7 +492,7 @@ export default {
       height: 320px;
     }
     > .el-card__body {
-      height: calc(100% - 120px);
+      height: calc(100% - 120px) !important;
       .chart-panel {
         height: 100%;
         overflow: scroll;

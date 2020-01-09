@@ -7,7 +7,7 @@ const timeInterval = [
     label: '近一月'
   }, {
     value: 3,
-    label: '近一年'
+    label: '近三月'
   }
 ]
 
