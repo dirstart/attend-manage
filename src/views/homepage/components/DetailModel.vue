@@ -32,6 +32,17 @@
         </template>
       </el-table-column>
     </el-table>
+    <div class="page-wrap">
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="page"
+        :page-sizes="[10, 20, 50, 100]"
+        :page-size="size"
+        layout="total, sizes, prev, pager, next"
+        :total="allData.length">
+      </el-pagination>
+    </div>
     <div slot="footer">
       <el-button size="mini" type="primary" @click="isDialogShow = false">关闭</el-button>
     </div>
@@ -58,7 +69,10 @@ export default {
   },
   data() {
     return {
+      allData: [],
       listTableData: [],
+      page: 1,
+      size: 10,
       isDialogShow: false,
       loading: false
     };
@@ -80,7 +94,8 @@ export default {
       fetchDetailData({ ...params, ...detail }).then((res) => {
         const { code, data, message } = res.data;
         if (code === 200) {
-          this.listTableData = data;
+          this.allData = data;
+          this.limitData(data);
         } else {
           this.$message.error(message);
         }
@@ -89,6 +104,18 @@ export default {
         console.dir(err);
         this.loading = false;
       });
+    },
+    limitData(data) {
+      let origin = (this.page - 1) * this.size;
+      this.listTableData = data.slice(origin, origin + this.size);
+    },
+    handleSizeChange(val) {
+      this.size = val;
+      this.limitData(this.allData);
+    },
+    handleCurrentChange(val) {
+      this.page = val;
+      this.limitData(this.allData);
     },
     judgeDateType(type) {
       let result = '';
@@ -109,10 +136,15 @@ export default {
   .details {
     .info {
       background: #fafbfd;
-      padding: 28px 20px;
+      padding: 20px 20px;
       font-size: 15px;
       color: #3f4041;
     }
+  }
+  .page-wrap {
+    padding: 20px;
+    padding-top: 10px;
+    text-align: right;
   }
   /deep/ {
     .el-table th.is-leaf, .el-table td {

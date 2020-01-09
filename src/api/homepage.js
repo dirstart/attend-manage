@@ -25,3 +25,11 @@ export function getDepartment() {
     method: 'get'
   });
 }
+
+// 获取所有员工
+export function getEmployee() {
+  return request({
+    url: '/staff',
+    method: 'get'
+  });
+}

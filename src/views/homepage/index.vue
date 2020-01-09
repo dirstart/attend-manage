@@ -53,7 +53,7 @@
       </el-form>
     </div>
     <el-table :data="attendData" style="width: 100%">
-      <el-table-column prop="no" label="部门编号" width="180"></el-table-column>
+      <el-table-column prop="departNo" label="部门编号" width="180"></el-table-column>
       <el-table-column prop="departName" label="部门名称"></el-table-column>
       <el-table-column prop="no" label="工号"></el-table-column>
       <el-table-column prop="name" label="姓名"></el-table-column>
@@ -65,6 +65,17 @@
         </template>
       </el-table-column>
     </el-table>
+    <div class="page-wrap">
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="page"
+        :page-sizes="[10, 20, 50, 100]"
+        :page-size="size"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="allData.length">
+      </el-pagination>
+    </div>
     <detail-model :is-open.sync="isDialogShow" :detail="item" :params="queryParams" />
   </div>
 </template>
@@ -94,10 +105,13 @@ export default {
         dateType: 0
       },
       departmentList: [],
+      allData: [],
       attendData: [],
       item: {},
       isDialogShow: false,
-      loading: {}
+      loading: {},
+      page: 1,
+      size: 10
     };
   },
   methods: {
@@ -123,11 +137,16 @@ export default {
       fetchAttendData(queryParams).then(res => {
         const { code, data, message } = res.data;
         if (code === 200) {
-          this.attendData = data;
+          this.allData = data;
+          this.limitData(data);
         } else {
           this.$message.error(message);
         }
       });
+    },
+    limitData(data) {
+      let origin = (this.page - 1) * this.size;
+      this.attendData = data.slice(origin, origin + this.size);
     },
     // 获取部门列表
     fetchDepartment() {
@@ -148,10 +167,18 @@ export default {
     onSubmit() {
       this.loadData();
     },
+    handleSizeChange(val) {
+      this.size = val;
+      this.limitData(this.allData);
+    },
+    handleCurrentChange(val) {
+      this.page = val;
+      this.limitData(this.allData);
+    },
     onBeforeImport() {
       this.loading = this.$loading({
         lock: true,
-        text: "Loading",
+        text: "导入中...",
         background: "rgba(0, 0, 0, 0.7)"
       });
     },
@@ -184,7 +211,10 @@ export default {
   padding: 0 20px;
 }
 .search-wrap {
-  padding: 50px 0;
+  padding-top: 40px;
+}
+.el-table {
+  padding: 10px 0;
 }
 .el-input {
   width: 280px;
@@ -192,6 +222,11 @@ export default {
 }
 .file-upload {
   display: inline-block;
+}
+.page-wrap {
+  padding: 20px;
+  padding-top: 0;
+  text-align: right;
 }
 
 /deep/ {
@@ -204,6 +239,9 @@ export default {
   .el-table th.is-leaf,
   .el-table td {
     text-align: center;
+  }
+  .el-table::before {
+    height: 0;
   }
 }
 </style>
