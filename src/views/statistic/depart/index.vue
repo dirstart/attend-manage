@@ -46,9 +46,6 @@
           <el-tag style="float:right;" type="primary" size="mini">{{commonTime}}</el-tag>
         </div>
         <div class="rank-body">
-            <Calendar
-              ref="Calendar"
-            ></Calendar>
           <div v-if="rankingList.length > 0" class="rank-item" :class="{'rank-first': index === 0, 'rank-second': index === 1, 'rank-third': index === 2}" v-for="(item, index) in rankingList" :key="index">
             <span class="rank-num">{{(index + 1) < 10 ? '0' + (index + 1) : (index + 1)}}</span>
             <span class="rank-name">{{item.departName}}</span>
@@ -58,6 +55,11 @@
             暂无数据
           </div>
         </div>
+        <Calendar
+          ref="Calendar"
+          style="margin-top: 20px;"
+          :markDate="markDateArr"
+        ></Calendar>
       </div>
     </el-card>
     <el-dialog
@@ -86,6 +88,9 @@ import Calendar from "vue-calendar-component";
 import {getDepartOvertime, getAllPart, getDepartLine} from '@/api/statistic'
 export default {
   name: 'depart',
+  components: {
+    Calendar
+  },
   async created() {
     await this.getAllPart()
     await this.getDepartOvertime();
@@ -109,7 +114,8 @@ export default {
       columnChart: null,
       pieChart: null,
       lineChart: null,
-      barChart: null
+      barChart: null,
+      markDateArr: []
     };
   },
   methods: {
@@ -158,7 +164,7 @@ export default {
       if (!this.columnChart) {
         this.columnChart = new Column(
           document.getElementById('columnChart'), {
-            height: 270,
+            height: 275,
             title: {
               visible: true,
               text: '各部门加班时长柱形图',
@@ -187,7 +193,7 @@ export default {
       if (!this.pieChart) {
         this.pieChart = new Pie(
           document.getElementById('pieChart'), {
-            height: 270,
+            height: 275,
             forceFit: true,
             title: {
               visible: true,
@@ -226,7 +232,7 @@ export default {
       if (!this.barChart) {
         this.barChart = new Bar(
           document.getElementById('barChart'), {
-            height: 270,
+            height: 275,
             title: {
               visible: true,
               text: '各部门加班费支出',
@@ -266,7 +272,7 @@ export default {
           },
         ];
         this.lineChart = new Line(document.getElementById('lineChart'), {
-          height: 270,
+          height: 275,
           title: {
             visible: true,
             text: '各部门加班时长折线图',
@@ -323,7 +329,6 @@ export default {
       } else {
         departNos = this.selectedOrg.map(item => item.departNo)
       }
-      console.log(startTime, endTime)
       return new Promise((resolve, reject) => {
         getDepartLine({
           startTime,
@@ -332,6 +337,7 @@ export default {
         }).then(res => {
           const arr = res.data && res.data.data || []
           this.lineData = this.handleLineData(arr)
+          this.markDateArr = this.lineData.filter(item => +item.allOverTime !== 0).map(item => item.date)
           this.initSecondGroup()
           resolve(true)
         })
@@ -408,7 +414,6 @@ export default {
         all[h].value = all[h].allOverTime
         all[h].date = all[h].date
       }
-      console.log('test', all)
       return all
     },
     getDepartOvertime () {
@@ -450,12 +455,11 @@ export default {
   computed: {
     rankingList () {
       const arr = this.list || []
-      return arr.sort(rankingSort('allOverTime')).slice(0, 14)
+      return arr.sort(rankingSort('allOverTime')).slice(0, 7)
     }
   },
   watch: {
     commonTime (value) {
-      console.log('commonTime', value)
       this.getDepartOvertime()
       this.getDepartLine()
     } 
@@ -463,7 +467,7 @@ export default {
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang='scss'>
 .all-height {
   height: 100%;
 }
@@ -477,7 +481,7 @@ export default {
   display: flex;
   flex-wrap: nowrap;
   height: 100%;
-  min-width: 1000px;
+  min-width: 1100px;
   .msg-wrap {
     flex: 0 0 300px;
     box-sizing: border-box;
@@ -497,6 +501,7 @@ export default {
     }
     > .el-card__body {
       height: calc(100% - 120px) !important;
+      // height: calc(100% - 120px);
       .chart-panel {
         height: 100%;
         overflow: scroll;
@@ -512,45 +517,53 @@ export default {
     font-size: 12px;
     text-align: center;
     position: relative;
-    top: 240px;
+    top: 100px;
   }
   .rank-body {
-    margin-top: 10px;
-    display: flex;
-    flex-flow: column;
-    height: 500px;
-    background: #667db6;  /* fallback for old browsers */
-    // background: -webkit-linear-gradient(to right, #DABEE8, #0082c8, #0082c8, #00D6F2);  /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, #D9FFA3, #B0CCFF); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-    background: linear-gradient(-45deg, #00D6F2 100px, #0482B3 200px);
+    margin-top: 20px;
+    padding: 10px;
+    background: #eee;
+    width: 236px;
+    height: 250px;
+    min-height: 250px;
 
     padding: 10px;
     border-radius: 4px;
-    color: #fff;
     box-shadow: 0 0 2px #3fb3f1;
+
+    position: relative;
+    color: #169fe6;
+    display: inline-block;
+    background: #d4eef5;
+    padding: 0 10px;
+    cursor: pointer;
+    transition-property: color;
+    transition-duration: .3s;
+    transform: translateZ(0);
+
     .rank-item {
-      margin-bottom: 6px;
+      margin: 3px 0;
       height: 30px;
       line-height: 30px;
       &.rank-first {
         .rank-num {
           background: #FDC830;  /* fallback for old browsers */
-          background: -webkit-linear-gradient(to right, #F37335, #FDC830);  /* Chrome 10-25, Safari 5.1-6 */
-          background: linear-gradient(to right, #F37335, #FDC830); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+          background: -webkit-linear-gradient(to left, #ffffe9, #FDC830);  /* Chrome 10-25, Safari 5.1-6 */
+          background: linear-gradient(to left, #ffffe9, #FDC830); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
         }
       }
       &.rank-second {
         .rank-num {
           background: #00b09b;  /* fallback for old browsers */
-          background: -webkit-linear-gradient(to right, #96c93d, #00b09b);  /* Chrome 10-25, Safari 5.1-6 */
-          background: linear-gradient(to right, #96c93d, #00b09b); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+          background: -webkit-linear-gradient(to left, #ffffe9, #709df7);  /* Chrome 10-25, Safari 5.1-6 */
+          background: linear-gradient(to left, #ffffe9, #709df7); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
         }
       }
       &.rank-third {
         .rank-num {
           background: #EECDA3;  /* fallback for old browsers */
-          background: -webkit-linear-gradient(to right, #EF629F, #EECDA3);  /* Chrome 10-25, Safari 5.1-6 */
-          background: linear-gradient(to right, #EF629F, #EECDA3); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+          background: -webkit-linear-gradient(to left, #ffffe9, #70dbb0);  /* Chrome 10-25, Safari 5.1-6 */
+          background: linear-gradient(to left, #ffffe9, #70dbb0); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
         }
       }
       .rank-num {
@@ -576,9 +589,6 @@ export default {
     }
   }
 
-  .el-card__body {
-    
-  }
 
   .tag-wrap {
     margin-top: 4px;
@@ -602,10 +612,69 @@ export default {
   // }
   .self-chart {
     margin-bottom: 5px;
+    border-radius: 4px;
     background: #eee;
     box-sizing: border-box;
     display: inline-block;
     width: 48%;
+  }
+  // 日历组件样式修改
+  .wh_container {
+    .wh_content_all {
+      border-radius: 4px;
+      font-family: 微软雅黑 !important;
+      // background: #fff;
+      background: #eee;
+      // 头部
+      .wh_top_changge {
+        background: #eee;
+        .wh_jiantou1 {
+          color: #303133;
+        }
+        color: #606266;
+        border: 1px solid #E4E7ED;
+        .wh_content_li {
+          color: #606266;
+        }
+      }
+      .wh_content {
+        .wh_content_item {
+          .wh_chose_day {
+            background: none;
+          }
+          > .wh_isMark {
+            background: #dac5aa;
+            box-shadow: 0 0 2px blue;
+          }
+          .wh_item_date {
+            width: 30px;
+            height: 30px;
+            margin: 5px;
+            color: #606266;
+            &:hover {
+              background: none;
+              color: #3390FF;
+              box-shadow: 0 0 10px #000;
+              border-radius: 50%;
+            }
+            &.wh_isToday {
+              background-color: #3390FF;
+              // width: 24px;
+              // height: 24px;
+              // display: block;
+              // margin: 0 auto;
+              box-shadow: 0 2px 12px 0 blue;
+              line-height: 24px;
+              border-radius: 50%;
+            }
+          }
+          .wh_top_tag {
+            color: #606266;
+          }
+        }
+        
+      }
+    }
   }
 }
 </style>
