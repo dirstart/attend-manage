@@ -46,6 +46,9 @@
           <el-tag style="float:right;" type="primary" size="mini">{{commonTime}}</el-tag>
         </div>
         <div class="rank-body">
+            <Calendar
+              ref="Calendar"
+            ></Calendar>
           <div v-if="rankingList.length > 0" class="rank-item" :class="{'rank-first': index === 0, 'rank-second': index === 1, 'rank-third': index === 2}" v-for="(item, index) in rankingList" :key="index">
             <span class="rank-num">{{(index + 1) < 10 ? '0' + (index + 1) : (index + 1)}}</span>
             <span class="rank-name">{{item.departName}}</span>
@@ -79,6 +82,7 @@
 import {Column, Pie, Line, Bar, Gauge} from '@antv/g2plot';
 import {dayToString, rankingSort} from "../common/utils";
 import {timeInterval} from '../common/documents'
+import Calendar from "vue-calendar-component";
 import {getDepartOvertime, getAllPart, getDepartLine} from '@/api/statistic'
 export default {
   name: 'depart',

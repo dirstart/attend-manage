@@ -47,10 +47,11 @@
           <span>部门排行榜</span>
           <el-tag style="float:right;" type="primary" size="mini">{{commonTime}}</el-tag>
         </div>
+        <!-- <div class="water-chart" id="waterChart"></div> -->
         <div class="rank-body">
-           <!-- <Calendar
+           <Calendar
               ref="Calendar"
-            ></Calendar> -->
+            ></Calendar>
           <div v-if="rankingList.length > 0" class="rank-item" :class="{'rank-first': index === 0, 'rank-second': index === 1, 'rank-third': index === 2}" v-for="(item, index) in rankingList" :key="index">
             <span class="rank-num">{{(index + 1) < 10 ? '0' + (index + 1) : (index + 1)}}</span>
             <span class="rank-name">{{item.departName}}</span>
@@ -66,7 +67,7 @@
 </template>
 
 <script>
-import {Column, Pie, Line, Bar} from '@antv/g2plot';
+import {Column, Pie, Line, Bar, Liquid} from '@antv/g2plot';
 import {dayToString, rankingSort} from "../common/utils";
 import {timeInterval} from '../common/documents'
 import Calendar from "vue-calendar-component";
@@ -99,7 +100,10 @@ export default {
       columnChart: null,
       pieChart: null,
       lineChart: null,
-      barChart: null
+      barChart: null,
+      waterChart: null,
+      waterMax: 0,
+      waterValue: 0
     };
   },
   methods: {
@@ -118,6 +122,7 @@ export default {
       return new Promise((resolve, reject) => {
         getPersonByPart(this.orgValue).then(res => {
           this.personList = res.data.data || []
+          this.waterMax = this.personList.length || 0
           resolve(true)
         })
       })
@@ -143,6 +148,7 @@ export default {
           staffNos
         }).then(res => {
           this.pieData = res.data.data || []
+          this.waterValue = this.pieData.length || 0
           let arr = []
           let haveId = this.pieData.map(item => item.no)
           for (let i = 0; i < this.personList.length; i++) {
@@ -286,6 +292,24 @@ export default {
       } else {
         this.barChart.changeData(pieData)
       }
+      // 加班比例水波图
+      // if (!this.waterChart) {
+      //   this.waterChart = new Liquid(
+      //     document.getElementById('waterChart'), {
+      //     title: {
+      //       visible: true,
+      //       text: '水波图',
+      //     },
+      //     statistic: 'normal',
+      //     width: 400,
+      //     height: 400,
+      //     min: 0,
+      //     max: 10000,
+      //     value: 4500,
+      //     showValue: true
+      //   });
+      //   this.waterChart.render()
+      // }
     },
     initLineData () {
       if (!this.lineChart) {
