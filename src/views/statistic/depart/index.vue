@@ -147,8 +147,7 @@ export default {
         return {
           type: item.departName,
           value: +item.allOverTime,
-          '支出': +item.cost,
-          rate: (+item.allOverTime / this.totalValue).toFixed(4) * 100
+          '支出': +item.cost
         }
       })
       // 加班时长柱形图
@@ -197,13 +196,12 @@ export default {
             },
             radius: 0.8,
             data: columnData,
-            angleField: 'rate',
+            angleField: 'value',
             colorField: 'type',
             label: {
               visible: true,
               type: 'inner',
               formatter: (value, all, test) => {
-                console.log('test', this.totalValue)
                 return `${(value / this.totalValue * 100).toFixed(2)}%`
               }
             },
@@ -271,7 +269,7 @@ export default {
           },
           description: {
             visible: true,
-            text: '将数据按照某一字段进行分组，用于比对不同类型数据的趋势。',
+            text: '单位(h)',
           },
           label: {
             // visible: true,

@@ -6,7 +6,11 @@
           <el-col :span="6">
             人员分类统计
           </el-col>
-          <el-col :span="18">              
+          <el-col :span="18">    
+            <!-- <el-button-group class="float-right">
+              <el-button size="mini" type="primary" icon="el-icon-arrow-left">概览</el-button>
+              <el-button size="mini" type="primary">单行<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+            </el-button-group> -->
             <el-radio-group class="float-right" v-model="commonTime" size="mini">
               <el-radio-button v-for="(item, index) in timeInterval"
                 :value="item.value"
@@ -34,10 +38,7 @@
         <div class="self-chart" id="columnChart"></div>
         <div class="self-chart" id="pieChart"></div>
         <div class="self-chart" id="lineChart"></div>
-        <!-- <div class="self-chart" id="columnChart"></div>
-        <div class="self-chart" id="pieChart"></div>
-        <div class="self-chart" id="lineChart"></div>
-        <div class="self-chart" id="barChart"></div> -->
+        <div class="self-chart" id="barChart"></div>
       </div>
     </el-card>
     <el-card size="small" class="all-height msg-wrap">
@@ -47,6 +48,9 @@
           <el-tag style="float:right;" type="primary" size="mini">{{commonTime}}</el-tag>
         </div>
         <div class="rank-body">
+           <!-- <Calendar
+              ref="Calendar"
+            ></Calendar> -->
           <div v-if="rankingList.length > 0" class="rank-item" :class="{'rank-first': index === 0, 'rank-second': index === 1, 'rank-third': index === 2}" v-for="(item, index) in rankingList" :key="index">
             <span class="rank-num">{{(index + 1) < 10 ? '0' + (index + 1) : (index + 1)}}</span>
             <span class="rank-name">{{item.departName}}</span>
@@ -65,9 +69,13 @@
 import {Column, Pie, Line, Bar} from '@antv/g2plot';
 import {dayToString, rankingSort} from "../common/utils";
 import {timeInterval} from '../common/documents'
+import Calendar from "vue-calendar-component";
 import {getAllPart, getPersonByPart, getPersonOvertime, getPersonLine} from '@/api/statistic'
 export default {
   name: 'depart',
+  components: {
+    Calendar
+  },
   async created() {
     await this.getAllPart()
     // 获取当前部门的人员id
@@ -179,7 +187,11 @@ export default {
       })
     },
     initPieData() {
-      const pieData = this.pieData
+      const pieData = this.pieData.map(item => {
+        item['支出'] = +item.cost
+        return item
+      })
+      
       this.totalValue = 0
       for (let i = 0; i < this.pieData.length; i++) {
         this.totalValue += +this.pieData[i].allOverTime
@@ -224,7 +236,7 @@ export default {
             forceFit: true,
             title: {
               visible: true,
-              text: '部门内加班时长占比',
+              text: '部门内人员加班时长占比',
             },
             description: {
               visible: true,
@@ -252,6 +264,28 @@ export default {
       } else {
         this.pieChart.changeData(pieData)
       }
+      // 加班费统计条形图
+      if (!this.barChart) {
+        this.barChart = new Bar(
+          document.getElementById('barChart'), {
+            height: 270,
+            title: {
+              visible: true,
+              text: '人员加班费支出',
+            },
+            forceFit: true,
+            data: pieData || [],
+            colorField: 'name',
+            xField: '支出',
+            yField: 'name',
+            xAxis: {
+            },
+          }
+        )
+        this.barChart.render()
+      } else {
+        this.barChart.changeData(pieData)
+      }
     },
     initLineData () {
       if (!this.lineChart) {
@@ -259,11 +293,11 @@ export default {
           height: 270,
           title: {
             visible: true,
-            text: '各部门加班时长折线图',
+            text: '人员加班时长折线图',
           },
           description: {
             visible: true,
-            text: '将数据按照某一字段进行分组，用于比对不同类型数据的趋势。',
+            text: '单位(h)',
           },
           label: {
             // visible: true,
@@ -312,7 +346,7 @@ export default {
 };
 </script>
 
-<style lang='scss' scoped>
+<style lang='scss'>
 .all-height {
   height: 100%;
 }
@@ -345,7 +379,7 @@ export default {
       height: 320px;
     }
     > .el-card__body {
-      height: calc(100% - 120px);
+      height: calc(100% - 120px) !important;
       .chart-panel {
         height: 100%;
         overflow: scroll;
